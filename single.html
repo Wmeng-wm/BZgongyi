@@ -1,1 +1,277 @@
-<h1 style='text-align:center'>单锭机计算器（把你的代码粘这里即可）</h1>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>单锭机工艺计算器 v4.0 - 全纤维专家版</title>
+<style>
+/* 核心布局：防溢出，解决缩放 */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #f4f7f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --sub: #64748b;
+  --pri: #22c55e;
+  --pri2: #16a34a;
+  --border: #cbd5e1;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  padding: 12px;
+}
+
+.wrap { max-width: 520px; margin: 0 auto; }
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.title { font-size: 18px; font-weight: 800; text-align: center; margin-bottom: 5px; }
+
+/* 切换按钮 */
+.mode-toggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  margin: 10px 0 15px;
+}
+.mode-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--sub);
+  transition: 0.2s;
+}
+.mode-btn.active {
+  background: #fff;
+  color: var(--pri2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+/* 表单栅格 */
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-full { grid-column: span 2; }
+
+label { font-size: 12px; font-weight: 700; color: var(--sub); }
+
+/* 16px 防止 iOS 自动缩放 */
+input, select {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 16px; 
+  outline: none;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus { border-color: var(--pri); }
+input[readonly] { background-color: #f8fafc; color: var(--pri2); font-weight: 800; border-color: #e2e8f0; }
+
+.calc-btn {
+  grid-column: span 2;
+  background: var(--pri);
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 5px;
+}
+.calc-btn:active { background: var(--pri2); transform: scale(0.98); }
+
+/* 展示框加大：单列全宽 */
+.kpi-grid { display: flex; flex-direction: column; gap: 10px; }
+.kpi {
+  background: #f0fdf4;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: 1px solid #dcfce7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.kpi .t { font-size: 13px; color: #166534; font-weight: bold; }
+.kpi .v { font-size: 20px; font-weight: 800; color: #064e3b; }
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: normal;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="card">
+    <div class="title">单锭机工艺计算器 (专家版)</div>
+  </div>
+
+  <div class="card">
+    <div class="mode-toggle">
+      <div class="mode-btn active" id="mW" onclick="setMode('W')">求宽度 W</div>
+      <div class="mode-btn" id="mD" onclick="setMode('D')">求旦尼尔 D</div>
+      <div class="mode-btn" id="mP" onclick="setMode('P')">求节距 P</div>
+    </div>
+
+    <div class="grid">
+      <!-- 完整材料模块 -->
+      <div class="field field-full">
+        <label>纤维材料库 (Fiber Library)</label>
+        <select id="matType" onchange="updateK()">
+          <option value="0.01420">UHMWPE (超高分子量聚乙烯)</option>
+          <option value="0.01140">芳纶 (Kevlar/芳纶1414)</option>
+          <option value="0.01189">PET (聚酯/涤纶)</option>
+          <option value="0.01250">PA (尼龙/锦纶)</option>
+          <option value="0.01480">PP (聚丙烯)</option>
+          <option value="0.00880">PTFE (聚四氟乙烯/铁氟龙)</option>
+          <option value="0.01020">碳纤维 (Carbon Fiber)</option>
+          <option value="0.00850">玻璃纤维 (Glass Fiber)</option>
+          <option value="custom">自定义 (Custom)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>锭数 (N)</label>
+        <input type="number" id="N" value="17">
+      </div>
+      <div class="field">
+        <label>结构选择</label>
+        <select id="craft">
+          <option value="1x1">1x1</option>
+          <option value="1x2" selected>1x2</option>
+          <option value="2x2">2x2</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>材料系数 k</label>
+        <input type="number" id="k" value="0.01420" step="0.00001">
+      </div>
+      <div class="field">
+        <label>经验修正 C</label>
+        <input type="number" id="C" value="0.258" step="0.001">
+      </div>
+      <div class="field">
+        <label>宽度 W (mm)</label>
+        <input type="number" id="W" value="3.2" step="0.1">
+      </div>
+      <div class="field">
+        <label>旦尼尔 D (Den)</label>
+        <input type="number" id="D" value="440" step="10">
+      </div>
+      <div class="field field-full">
+        <label>节距 P (mm)</label>
+        <input type="number" id="P" value="17" step="0.1">
+      </div>
+      
+      <button class="calc-btn" onclick="runCalc()">立即同步计算结果</button>
+    </div>
+  </div>
+
+  <!-- 加大后的全宽展示框 -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="t">输出宽度 Result Width</div>
+      <div class="v" id="resW">-</div>
+    </div>
+    <div class="kpi">
+      <div class="t">所需旦尼尔 Denier</div>
+      <div class="v" id="resD">-</div>
+    </div>
+    <div class="kpi">
+      <div class="t">编织角度 Braid Angle</div>
+      <div class="v" id="resA">-</div>
+    </div>
+    <div class="kpi">
+      <div class="t">单丝直径 Wire Dia.</div>
+      <div class="v" id="resd">-</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    🇨🇳 ©️王萌 ｜2026｜内部授权使用
+  </div>
+</div>
+
+<script>
+let currentMode = 'W';
+
+// 材料联动逻辑
+function updateK() {
+  const sel = document.getElementById('matType');
+  const kIn = document.getElementById('k');
+  if (sel.value !== 'custom') {
+    kIn.value = sel.value;
+  }
+}
+
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('m' + m).classList.add('active');
+  ['W', 'D', 'P'].forEach(id => {
+    document.getElementById(id).readOnly = (id === m);
+  });
+}
+
+function runCalc() {
+  const N = parseFloat(document.getElementById('N').value) || 17;
+  const C = parseFloat(document.getElementById('C').value) || 0.258;
+  const k = parseFloat(document.getElementById('k').value) || 0.0142;
+  
+  let W = parseFloat(document.getElementById('W').value);
+  let D = parseFloat(document.getElementById('D').value);
+  let P = parseFloat(document.getElementById('P').value);
+
+  // 经验拟合逻辑
+  const power = 0.375;
+
+  if (currentMode === 'W') {
+    W = N * (k * Math.sqrt(D)) * C * Math.pow(P, power);
+    document.getElementById('W').value = W.toFixed(2);
+  } else if (currentMode === 'D') {
+    D = Math.pow(W / (N * k * C * Math.pow(P, power)), 2);
+    document.getElementById('D').value = Math.round(D);
+  } else if (currentMode === 'P') {
+    P = Math.pow(W / (N * k * Math.sqrt(D) * C), 1 / power);
+    document.getElementById('P').value = P.toFixed(2);
+  }
+
+  // 计算显示
+  const angle = Math.atan((Math.PI * W) / (P || 1)) * 180 / Math.PI;
+  document.getElementById('resW').innerText = W.toFixed(2) + " mm";
+  document.getElementById('resD').innerText = Math.round(D) + " D";
+  document.getElementById('resA').innerText = angle.toFixed(1) + "°";
+  document.getElementById('resd').innerText = (k * Math.sqrt(D)).toFixed(4) + " mm";
+}
+
+setMode('W');
+runCalc();
+</script>
+
+</body>
+</html>
