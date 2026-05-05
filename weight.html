@@ -1,1 +1,274 @@
-<h1 style='text-align:center'>克重转换（已准备，可替换你的完整版）</h1>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>医疗编织丝克数转换器</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --radius: 16px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-main);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(149, 157, 165, 0.15);
+    margin-bottom: 20px;
+    border: 1px solid #f1f5f9;
+  }
+  h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; color: #0f172a; }
+  h2 { margin: 0 0 16px; font-size: 16px; font-weight: 600; color: #334155; }
+  
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  
+  label { font-size: 14px; font-weight: 500; display: block; margin-bottom: 8px; color: #475569; }
+  input, select {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--border);
+    border-radius: 10px; font-size: 15px; box-sizing: border-box;
+    transition: all 0.2s; background: #fdfdfd; color: var(--text-main);
+  }
+  input:focus, select:focus {
+    border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  
+  .hidden { display: none !important; }
+  .subline { color: var(--text-muted); font-size: 14px; margin-top: 4px; margin-bottom: 16px; }
+  
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; background: #f1f5f9; padding: 6px; border-radius: 12px; }
+  .tab-btn {
+    flex: 1; border: none; background: transparent; color: var(--text-muted); font-weight: 500;
+    padding: 12px; border-radius: 8px; font-size: 15px; cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-weight: 600; }
+  .tab-btn:hover:not(.active) { background: #e2e8f0; color: var(--text-main); }
+
+  /* Results */
+  .result-box {
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; text-align: center; display: flex; flex-direction: column; justify-content: center;
+  }
+  .result-label { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .result-val { font-size: 20px; font-weight: 700; color: var(--primary); word-break: break-all; }
+  
+  .footer-text { text-align: center; margin-top: 30px; color: var(--text-muted); font-size: 13px; padding-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <header style="margin-bottom: 24px;">
+      <h1>医疗编织丝克数转换器</h1>
+      <p class="subline">WM开发 ｜ 专业医疗编织辅助工具</p>
+    </header>
+
+    <div class="tabs">
+      <button id="tabMetalBtn" class="tab-btn active" onclick="switchTab('metal')">金属丝计算</button>
+      <button id="tabFiberBtn" class="tab-btn" onclick="switchTab('fiber')">纤维丝计算</button>
+    </div>
+
+    <div id="metalSection" class="grid">
+      <div>
+        <label>材质</label>
+        <select id="material" onchange="calculate()">
+          <option value="304">304 不锈钢</option>
+          <option value="316">316L 不锈钢</option>
+          <option value="Niti">镍钛合金 (Niti)</option>
+          <option value="W">钨丝 (W)</option>
+          <option value="Pt">铂金 (Pt)</option>
+        </select>
+      </div>
+      <div>
+        <label>丝型</label>
+        <select id="wireType" onchange="toggleFields(); calculate();">
+          <option value="圆丝">圆丝</option>
+          <option value="扁丝">扁丝</option>
+        </select>
+      </div>
+      <div id="roundField">
+        <label>圆丝直径 d (mm)</label>
+        <input id="diameter" type="number" step="0.001" value="0.05" oninput="calculate()" />
+      </div>
+      <div id="flatWidthField" class="hidden">
+        <label>扁丝宽 b (mm)</label>
+        <input id="width" type="number" step="0.001" value="0.05" oninput="calculate()" />
+      </div>
+      <div id="flatThickField" class="hidden">
+        <label>扁丝厚 h (mm)</label>
+        <input id="thickness" type="number" step="0.001" value="0.127" oninput="calculate()" />
+      </div>
+      <div>
+        <label>丝材总重量 (g)</label>
+        <input id="metalWeight" type="number" step="0.1" value="1000" oninput="calculate()" />
+      </div>
+      <div>
+        <label>分丝/合股数</label>
+        <input id="metalStrands" type="number" step="1" value="1" min="1" oninput="calculate()" />
+      </div>
+    </div>
+
+    <div id="fiberSection" class="grid hidden">
+      <div>
+        <label>纤维材质 (参考)</label>
+        <select id="fiberMaterial">
+          <option>超高分子量聚乙烯 (UHMWPE)</option>
+          <option>氨纶 (Spandex)</option>
+          <option>涤纶 (PET)</option>
+          <option>尼龙 (Nylon)</option>
+          <option>其他</option>
+        </select>
+      </div>
+      <div>
+        <label>规格单位</label>
+        <select id="fiberUnit" onchange="calculate()">
+          <option value="D">Denier (D / 旦尼尔)</option>
+          <option value="Tex">Tex (特克斯)</option>
+          <option value="dtex">dtex (分特)</option>
+        </select>
+      </div>
+      <div>
+        <label>规格数值</label>
+        <input id="fiberValue" type="number" step="1" value="100" oninput="calculate()" />
+      </div>
+      <div>
+        <label>卷轴总重量 (g)</label>
+        <input id="fiberWeight" type="number" step="0.1" value="1000" oninput="calculate()" />
+      </div>
+      <div>
+        <label>分丝/合股数</label>
+        <input id="fiberStrands" type="number" step="1" value="1" min="1" oninput="calculate()" />
+      </div>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <h2>计算结果</h2>
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+        <div id="densityCard" class="result-box">
+          <div class="result-label">密度 (g/cm³)</div>
+          <div class="result-val" id="densityOut">-</div>
+        </div>
+        <div id="areaCard" class="result-box">
+          <div class="result-label">截面积 (mm²)</div>
+          <div class="result-val" id="areaOut">-</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">每米重量 (g/m)</div>
+          <div class="result-val" id="gpmOut">-</div>
+        </div>
+        <div class="result-box" style="background:#eff6ff; border-color:#bfdbfe;">
+          <div class="result-label">总长度 (m)</div>
+          <div class="result-val" id="lengthOut">-</div>
+        </div>
+        <div class="result-box" style="background:#f0fdf4; border-color:#bbf7d0;">
+          <div class="result-label">单股可用长度 (m)</div>
+          <div class="result-val" id="strandLengthOut">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-text">
+  版权所有🇨🇳 © 王萌 ｜ 2026｜
+</div>
+
+<script>
+let currentTab = 'metal';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabMetalBtn').classList.toggle('active', tab === 'metal');
+  document.getElementById('tabFiberBtn').classList.toggle('active', tab === 'fiber');
+  
+  document.getElementById('metalSection').classList.toggle('hidden', tab !== 'metal');
+  document.getElementById('fiberSection').classList.toggle('hidden', tab !== 'fiber');
+  
+  document.getElementById('densityCard').style.display = tab === 'metal' ? 'flex' : 'none';
+  document.getElementById('areaCard').style.display = tab === 'metal' ? 'flex' : 'none';
+  
+  calculate();
+}
+
+function toggleFields(){
+  if(currentTab !== 'metal') return;
+  const type = document.getElementById("wireType").value;
+  document.getElementById("roundField").classList.toggle("hidden", type !== "圆丝");
+  document.getElementById("flatWidthField").classList.toggle("hidden", type !== "扁丝");
+  document.getElementById("flatThickField").classList.toggle("hidden", type !== "扁丝");
+}
+
+function calculate(){
+  let gpm = 0; 
+  let length = 0; 
+  let strandLength = 0;
+
+  if(currentTab === 'metal') {
+    const material = document.getElementById("material").value;
+    const type = document.getElementById("wireType").value;
+    const weight = parseFloat(document.getElementById("metalWeight").value || 0);
+    const strands = Math.max(1, parseInt(document.getElementById("metalStrands").value || 1));
+    
+    const densityMap = { "304": 7.93, "316": 7.98, "Niti": 6.45, "W": 19.3, "Pt": 21.45 };
+    const density = densityMap[material] || 0;
+    let area = 0;
+    
+    if(type === "圆丝"){
+      const d = parseFloat(document.getElementById("diameter").value || 0);
+      area = Math.PI * Math.pow(d/2, 2);
+    } else {
+      const w = parseFloat(document.getElementById("width").value || 0);
+      const h = parseFloat(document.getElementById("thickness").value || 0);
+      area = w * h;
+    }
+    
+    gpm = area * density; 
+    length = gpm > 0 ? weight / gpm : 0;
+    strandLength = length / strands;
+    
+    document.getElementById("densityOut").textContent = density.toFixed(2);
+    document.getElementById("areaOut").textContent = area.toFixed(6);
+  } 
+  else {
+    const unit = document.getElementById("fiberUnit").value;
+    const value = parseFloat(document.getElementById("fiberValue").value || 0);
+    const weight = parseFloat(document.getElementById("fiberWeight").value || 0);
+    const strands = Math.max(1, parseInt(document.getElementById("fiberStrands").value || 1));
+
+    if(unit === "D") { gpm = value / 9000; } 
+    else if(unit === "Tex") { gpm = value / 1000; } 
+    else if(unit === "dtex") { gpm = value / 10000; }
+
+    length = gpm > 0 ? weight / gpm : 0;
+    strandLength = length / strands;
+  }
+
+  document.getElementById("gpmOut").textContent = gpm > 0 ? gpm.toFixed(6) : "-";
+  document.getElementById("lengthOut").textContent = length > 0 ? length.toFixed(1) : "-";
+  document.getElementById("strandLengthOut").textContent = strandLength > 0 ? strandLength.toFixed(1) : "-";
+}
+
+window.onload = () => {
+  toggleFields();
+  calculate();
+};
+</script>
+</body>
+</html>
