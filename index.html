@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>医疗编织工艺平台</title>
+<style>
+body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei";background:#f4f6fb;}
+.header{padding:16px;background:#111;color:#fff;text-align:center;font-weight:700;font-size:18px;}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #eee;}
+.tab{flex:1;padding:14px;text-align:center;cursor:pointer;font-size:14px;}
+.tab.active{color:#22c55e;font-weight:700;border-bottom:3px solid #22c55e;}
+iframe{width:100%;height:calc(100vh - 100px);border:none;}
+</style>
+</head>
+<body>
+<div class="header">医疗编织工艺计算平台</div>
+<div class="tabs">
+<div class="tab active" onclick="switchTab('braid.html', this)">编织计算</div>
+<div class="tab" onclick="switchTab('coil.html', this)">绕丝计算</div>
+<div class="tab" onclick="switchTab('single.html', this)">单锭机</div>
+<div class="tab" onclick="switchTab('weight.html', this)">克重转换</div>
+</div>
+<iframe id="frame" src="braid.html"></iframe>
+<script>
+function switchTab(page, el){
+document.getElementById('frame').src = page;
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+el.classList.add('active');
+}
+</script>
+</body>
+</html>
