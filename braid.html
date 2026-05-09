@@ -56,7 +56,7 @@ textarea{min-height:200px; line-height: 1.6; font-size: 15px;}
   <div class="card" style="padding-bottom: 20px;">
     <h1 style="margin:0 0 8px; font-size:24px; letter-spacing:-0.5px;">编织工艺计算器</h1>
     <div style="color:#64748b; line-height: 1.6; font-size:13px;">
-      V3.6 版本，修复角度计算逻辑，保留原始角度显示。
+      V3.6 版本，修复角度计算逻辑。
     </div>
   </div>
 
@@ -228,12 +228,12 @@ function buildPreview(){
  document.getElementById('preview').value = `【编织工艺参数参考】\n工艺：${craft}\n锭数：${sp} 锭\n芯棒直径：${D.toFixed(3)} mm\n丝径：${d.toFixed(3)} mm\n目数：${ppi} PPI\n节距：${pitchOut} mm\n成品长度：${len} mm\n\n计算结果：\n1、用丝比：${ratio}\n2、编织夹角：${angle}\n3、单股理论用丝：${single}\n4、机台理论总用丝：${total}`;
 }
 
-async function copyText(t){ const finalText=(t||'')+"\n\n—— 版权所有 © 王萌"; try{ await navigator.clipboard.writeText(finalText); alert('已复制到剪贴板'); }catch(e){ console.error(e); alert('复制失败'); } }
+async function copyText(t){ const finalText=(t||'')+"\n\n—— 版权所有 © 🇨🇳"; try{ await navigator.clipboard.writeText(finalText); alert('已复制到剪贴板'); }catch(e){ console.error(e); alert('复制失败'); } }
 function copyCustomer(){calc();buildPreview();copyText(document.getElementById('preview').value)}
 
 sync('ppi');
 calc();
 </script>
-<div class="footer-note">🇨🇳 © 王萌｜2026｜ </div>
+<div class="footer-note">🇨🇳 © 2026 </div>
 </body>
 </html>
