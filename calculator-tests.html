@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>计算器公式测试</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;max-width:860px;margin:32px auto;padding:0 16px;background:#f8fafc;color:#111827}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+.pass{color:#0a7a33}.fail{color:#c62828}
+pre{white-space:pre-wrap;background:#f1f5f9;border-radius:10px;padding:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>计算器公式测试</h1>
+  <p>用于修改公式后做快速冒烟检查。</p>
+  <pre id="out"></pre>
+</div>
+<script>
+function approx(actual, expected, tolerance = 0.001) {
+  return Math.abs(actual - expected) <= tolerance;
+}
+function helixFactor(radius, pitch) {
+  return pitch > 0 ? Math.sqrt(1 + Math.pow((2 * Math.PI * radius) / pitch, 2)) : NaN;
+}
+function tightMul(t) { return t === "soft" ? 1.03 : (t === "tight" ? 0.97 : 1.00); }
+function coilLayerByPitch(coreDia, wireDia, n, pitch, len, tight, loss) {
+  const pathDia = coreDia + wireDia;
+  const perRatio = Math.sqrt(1 + Math.pow((Math.PI * pathDia) / pitch, 2)) * tightMul(tight);
+  const ratio = perRatio * n;
+  const total2 = ratio * len * (1 + loss / 100);
+  return { perRatio, ratio, total2 };
+}
+function calcLayerDenseP(n, wire, core, tight) {
+  const kTight = tight === "soft" ? 1.035 : (tight === "tight" ? 0.925 : 0.965);
+  const ratio = (n * wire) / (Math.PI * (core + wire));
+  const geomFactor = Math.max(0.94, Math.sqrt(Math.max(0, 1 - ratio * ratio)));
+  return n * wire * kTight * geomFactor;
+}
+const tests = [
+  ["helixFactor basic", () => approx(helixFactor(0.1, 5), 1.007864, 0.00001)],
+  ["coil per-ratio", () => approx(coilLayerByPitch(0.12, 0.04, 6, 0.18, 5, "normal", 5).perRatio, 2.966177, 0.00001)],
+  ["coil total length", () => approx(coilLayerByPitch(0.12, 0.04, 6, 0.18, 5, "normal", 5).total2, 93.435, 0.01)],
+  ["dense pitch positive", () => calcLayerDenseP(6, 0.04, 0.12, "normal") > 0],
+  ["invalid helix pitch", () => Number.isNaN(helixFactor(0.1, 0))]
+];
+const lines = tests.map(([name, fn]) => {
+  try {
+    return `${fn() ? "PASS" : "FAIL"} ${name}`;
+  } catch (error) {
+    return `FAIL ${name}: ${error.message}`;
+  }
+});
+document.getElementById("out").innerHTML = lines.map(line => `<span class="${line.startsWith("PASS") ? "pass" : "fail"}">${line}</span>`).join("\n");
+</script>
+</body>
+</html>
