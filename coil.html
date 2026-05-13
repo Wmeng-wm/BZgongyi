@@ -3,214 +3,181 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>绕丝工艺计算平台 V4.62</title>
+<title>绕丝工艺计算平台 V4.70</title>
 <style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
-  max-width:1220px;margin:auto;padding:20px;background:#f4f6fb;color:#111
-}
-.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+:root{--bg:#f4f6fb;--card:#fff;--text:#111827;--muted:#64748b;--line:#e2e8f0;--primary:#111827;--soft:#f8fafc;--ok:#0a7a33;--warn:#b26a00;--bad:#c62828}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;max-width:1220px;margin:auto;padding:20px;background:var(--bg);color:var(--text)}
+.card{background:var(--card);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 8px 24px rgba(15,23,42,.06);border:1px solid #edf1f6}
 h1,h2{margin:0 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-input,select,textarea{
-  padding:12px;border:1px solid #d7dbe3;border-radius:10px;width:100%;box-sizing:border-box;font-size:16px
-}
-button{
-  padding:11px 16px;border:none;border-radius:10px;background:#111;color:#fff;cursor:pointer;font-size:15px
-}
-.btn2{background:#e9edf4;color:#111}
-.hidden{display:none}
+input,select{padding:12px;border:1px solid #d7dbe3;border-radius:10px;width:100%;font-size:16px;background:#fff}
+input:focus,select:focus{outline:none;border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.08)}
+button{padding:11px 16px;border:none;border-radius:10px;background:var(--primary);color:#fff;cursor:pointer;font-size:15px;font-weight:650}
+button:hover{filter:brightness(.95)}
+.btn2{background:#e9edf4;color:#111827}
+.hidden{display:none!important}
 .row{display:flex;gap:10px;flex-wrap:wrap}
-.big{font-size:28px;font-weight:700}
-.muted{color:#666;font-size:14px}
-.ok{color:#0a7a33}.warn{color:#b26a00}.bad{color:#c62828}
-pre{white-space:pre-wrap;background:#f7f8fb;padding:14px;border-radius:12px}
+.big{font-size:26px;font-weight:800}
+.muted{color:var(--muted);font-size:14px}
+.small{font-size:13px;color:var(--muted)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+pre{white-space:pre-wrap;background:#f7f8fb;padding:14px;border-radius:12px;border:1px solid var(--line);max-height:360px;overflow:auto}
 .tabbar{display:flex;gap:8px;flex-wrap:wrap}
-.tab{background:#e9edf4;color:#111}
-.tab.active{background:#111;color:#fff}
-.kpi{padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #edf1f6}
+.tab{background:#e9edf4;color:#111827}
+.tab.active{background:#111827;color:#fff}
+.kpi{padding:12px;border-radius:12px;background:var(--soft);border:1px solid #edf1f6}
 label{font-size:14px;color:#444;display:block;margin-bottom:6px}
-.small{font-size:13px;color:#666}
-hr{border:none;border-top:1px solid #edf1f6;margin:14px 0}
-.layer-title {font-weight:600; color:#111; background:#e9edf4; padding:6px 12px; border-radius:6px; display:inline-block; margin-bottom:8px; font-size:14px;}
+hr{border:none;border-top:1px solid var(--line);margin:14px 0}
+.layer-title{font-weight:700;background:#e9edf4;padding:6px 12px;border-radius:6px;display:inline-block;margin-bottom:8px;font-size:14px}
+.error{background:#fff4f4;border:1px solid #ffdcdc;color:#9f1239;border-radius:10px;padding:12px;margin-top:12px}
+.field-error{border-color:#e11d48!important;background:#fff7f7}
+.summary{line-height:1.65}
 </style>
 </head>
 <body>
-
 <div id="app">
   <div class="card">
     <h1>医疗编织 / 缆绳 / 绕丝工艺计算平台</h1>
-    <div class="row" style="justify-content: space-between; align-items: center;">
-      <div class="muted">绕丝工艺 · 医疗编织参数辅助工具 V4.62</div>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div class="muted">绕丝工艺 · 医疗编织参数辅助工具 V4.70</div>
     </div>
-    <div class="tabbar" style="margin-top:12px;">
-      <button class="tab active" onclick="showTab('rope', this)">7×7 缆绳</button>
+    <div class="tabbar" style="margin-top:12px">
+      <button class="tab active" onclick="showTab('rope', this)">7x7 缆绳</button>
       <button class="tab" onclick="showTab('coil1', this)">单层绕丝</button>
       <button class="tab" onclick="showTab('coil2', this)">双层绕丝</button>
       <button class="tab" onclick="showTab('coil3', this)">三层绕丝</button>
       <button class="tab" onclick="showTab('reverse', this)">外径反推</button>
-      <button class="tab" onclick="showTab('dense', this)">密绕专门计算</button>
+      <button class="tab" onclick="showTab('dense', this)">密绕计算</button>
       <button class="tab" onclick="showTab('settings', this)">校准设置</button>
     </div>
   </div>
 
-  <!-- 7×7缆绳 -->
   <div id="rope" class="card">
-    <h2>7×7 缆绳</h2>
-    <div class="small">已加入张力与变形折减系数</div>
-    <div class="grid" style="margin-top:12px;">
-      <div><label>单丝直径 d（mm）</label><input id="r_d" value="0.20" type="number" step="0.001"></div>
-      <div><label>成品长度 L（m）</label><input id="r_L" value="200" type="number" step="0.01"></div>
-      <div><label>损耗预留（%）</label><input id="r_loss" value="5" type="number" step="0.1"></div>
-      <div><label>分丝方式</label><select id="r_spool"><option value="49">49管（每根丝独立）</option><option value="7">7组（按七股小股）</option></select></div>
+    <h2>7x7 缆绳</h2>
+    <div class="small">含张力、变形折减、损耗和效率校准参数。</div>
+    <div class="grid" style="margin-top:12px">
+      <div><label>单丝直径 d (mm)</label><input id="r_d" value="0.20" type="number" step="0.001"></div>
+      <div><label>成品长度 L (m)</label><input id="r_L" value="200" type="number" step="0.01"></div>
+      <div><label>损耗预留 (%)</label><input id="r_loss" value="5" type="number" step="0.1"></div>
+      <div><label>分丝方式</label><select id="r_spool"><option value="49">49管 (每根丝独立)</option><option value="7">7组 (按七股小股)</option></select></div>
       <div><label>主机转速 RPM</label><input id="r_rpm" value="30" type="number" step="0.1"></div>
-      <div><label>内层捻距 P1（mm）</label><input id="r_p1" value="20" type="number" step="0.001"></div>
+      <div><label>内层捻距 P1 (mm)</label><input id="r_p1" value="20" type="number" step="0.001"></div>
       <div><label>内层捻向</label><select id="r_dir1"><option value="Z" selected>Z捻</option><option value="S">S捻</option></select></div>
-      <div><label>外层捻距 P2（mm）</label><input id="r_p2" value="5" type="number" step="0.001"></div>
+      <div><label>外层捻距 P2 (mm)</label><input id="r_p2" value="5" type="number" step="0.001"></div>
       <div><label>外层捻向</label><select id="r_dir2"><option value="Z">Z捻</option><option value="S" selected>S捻</option></select></div>
-      <div><label>7×7 总捻距 P3（mm）</label><input id="r_p3" value="6" type="number" step="0.001"></div>
-      <div><label>7×7 总捻向</label><select id="r_dir3"><option value="Z" selected>Z捻</option><option value="S">S捻</option></select></div>
+      <div><label>7x7 总捻距 P3 (mm)</label><input id="r_p3" value="6" type="number" step="0.001"></div>
+      <div><label>7x7 总捻向</label><select id="r_dir3"><option value="Z" selected>Z捻</option><option value="S">S捻</option></select></div>
       <div><label>工艺紧度</label><select id="r_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="calcRope()">计算缆绳</button><button class="btn2" onclick="fillRope()">示例</button></div>
-    <div id="out_rope" style="margin-top:16px;"></div>
+    <div class="row" style="margin-top:14px"><button onclick="calcRope()">计算缆绳</button><button class="btn2" onclick="fillRope()">示例</button></div>
+    <div id="out_rope" style="margin-top:16px"></div>
   </div>
 
-  <!-- 单层绕丝 -->
   <div id="coil1" class="card hidden">
-    <h2>单层绕丝（综合分析版）</h2>
+    <h2>单层绕丝</h2>
     <div class="grid">
-      <div><label>芯径（mm）</label><input id="c1_core" value="0.12" type="number" step="0.001"></div>
-      <div><label>丝径（mm）</label><input id="c1_wire" value="0.04" type="number" step="0.001"></div>
+      <div><label>芯径 (mm)</label><input id="c1_core" value="0.12" type="number" step="0.001"></div>
+      <div><label>丝径 (mm)</label><input id="c1_wire" value="0.04" type="number" step="0.001"></div>
       <div><label>股数</label><input id="c1_n" value="6" type="number" step="1"></div>
-      <div><label>实际设定捻距（mm）</label><input id="c1_pitch" value="0.18" type="number" step="0.0001"></div>
+      <div><label>设定捻距 (mm)</label><input id="c1_pitch" value="0.18" type="number" step="0.0001"></div>
       <div><label>捻向</label><select id="c1_dir"><option value="Z">Z捻</option><option value="S">S捻</option></select></div>
       <div><label>层开关</label><select id="c1_on"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select></div>
-      <div><label>成品长度（m）</label><input id="c1_len" value="5" type="number" step="0.01"></div>
+      <div><label>成品长度 (m)</label><input id="c1_len" value="5" type="number" step="0.01"></div>
       <div><label>工艺紧度</label><select id="c1_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>损耗预留（%）</label><input id="c1_loss" value="5" type="number" step="0.1"></div>
+      <div><label>损耗预留 (%)</label><input id="c1_loss" value="5" type="number" step="0.1"></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="calcCoil1()">计算</button></div>
-    <div id="out_c1" style="margin-top:16px;"></div>
+    <div class="row" style="margin-top:14px"><button onclick="calcCoil1()">计算</button></div>
+    <div id="out_c1" style="margin-top:16px"></div>
   </div>
 
-  <!-- 双层绕丝 -->
   <div id="coil2" class="card hidden">
-    <h2>双层绕丝（综合分析版）</h2>
+    <h2>双层绕丝</h2>
     <div class="grid">
-      <div><label>芯径（mm）</label><input id="c2_core" value="0.30" type="number" step="0.001"></div>
-      <div><label>成品长度（m）</label><input id="c2_len" value="10" type="number" step="0.01"></div>
+      <div><label>芯径 (mm)</label><input id="c2_core" value="0.30" type="number" step="0.001"></div>
+      <div><label>成品长度 (m)</label><input id="c2_len" value="10" type="number" step="0.01"></div>
       <div><label>工艺紧度</label><select id="c2_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>损耗预留（%）</label><input id="c2_loss" value="5" type="number" step="0.1"></div>
-      <div style="grid-column: 1 / -1;"><hr></div>
-      <div><label>内层 - 丝径（mm）</label><input id="c2_w1" value="0.04" type="number" step="0.001"></div>
+      <div><label>损耗预留 (%)</label><input id="c2_loss" value="5" type="number" step="0.1"></div>
+      <div style="grid-column:1/-1"><hr></div>
+      <div><label>内层 - 丝径 (mm)</label><input id="c2_w1" value="0.04" type="number" step="0.001"></div>
       <div><label>内层 - 股数</label><input id="c2_n1" value="6" type="number" step="1"></div>
-      <div><label>内层 - 设定捻距（mm）</label><input id="c2_p1" value="0.8566" type="number" step="0.0001"></div>
+      <div><label>内层 - 设定捻距 (mm)</label><input id="c2_p1" value="0.8566" type="number" step="0.0001"></div>
       <div><label>内层 - 捻向</label><select id="c2_dir1"><option value="Z">Z捻</option><option value="S">S捻</option></select></div>
       <div><label>内层 - 开关</label><select id="c2_on1"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select></div>
-      <div style="grid-column: 1 / -1;"><hr></div>
-      <div><label>外层 - 丝径（mm）</label><input id="c2_w2" value="0.04" type="number" step="0.001"></div>
+      <div style="grid-column:1/-1"><hr></div>
+      <div><label>外层 - 丝径 (mm)</label><input id="c2_w2" value="0.04" type="number" step="0.001"></div>
       <div><label>外层 - 股数</label><input id="c2_n2" value="6" type="number" step="1"></div>
-      <div><label>外层 - 设定捻距（mm）</label><input id="c2_p2" value="0.6700" type="number" step="0.0001"></div>
+      <div><label>外层 - 设定捻距 (mm)</label><input id="c2_p2" value="0.6700" type="number" step="0.0001"></div>
       <div><label>外层 - 捻向</label><select id="c2_dir2"><option value="Z">Z捻</option><option value="S">S捻</option></select></div>
       <div><label>外层 - 开关</label><select id="c2_on2"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="calcCoil2()">计算</button></div>
-    <div id="out_c2" style="margin-top:16px;"></div>
+    <div class="row" style="margin-top:14px"><button onclick="calcCoil2()">计算</button></div>
+    <div id="out_c2" style="margin-top:16px"></div>
   </div>
 
-  <!-- 三层绕丝 -->
   <div id="coil3" class="card hidden">
-    <h2>三层绕丝（综合分析版）</h2>
+    <h2>三层绕丝</h2>
     <div class="grid">
-      <div><label>芯径（mm）</label><input id="c3_core" value="0.30" type="number" step="0.001"></div>
-      <div><label>成品长度（m）</label><input id="c3_len" value="10" type="number" step="0.01"></div>
+      <div><label>芯径 (mm)</label><input id="c3_core" value="0.30" type="number" step="0.001"></div>
+      <div><label>成品长度 (m)</label><input id="c3_len" value="10" type="number" step="0.01"></div>
       <div><label>工艺紧度</label><select id="c3_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>损耗预留（%）</label><input id="c3_loss" value="5" type="number" step="0.1"></div>
-      <div style="grid-column: 1 / -1;"><hr></div>
-      <div><label>内层 - 丝径（mm）</label><input id="c3_w1" value="0.04" type="number" step="0.001"></div>
-      <div><label>内层 - 股数</label><input id="c3_n1" value="6" type="number" step="1"></div>
-      <div><label>内层 - 设定捻距（mm）</label><input id="c3_p1" value="0.8566" type="number" step="0.0001"></div>
-      <div><label>内层 - 捻向 / 开关</label>
-        <div style="display:flex;gap:5px;">
-          <select id="c3_dir1" style="width:50%"><option value="Z">Z捻</option><option value="S">S捻</option></select>
-          <select id="c3_on1" style="width:50%"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select>
-        </div>
-      </div>
-      <div style="grid-column: 1 / -1;"><hr></div>
-      <div><label>中层 - 丝径（mm）</label><input id="c3_w2" value="0.04" type="number" step="0.001"></div>
-      <div><label>中层 - 股数</label><input id="c3_n2" value="6" type="number" step="1"></div>
-      <div><label>中层 - 设定捻距（mm）</label><input id="c3_p2" value="0.6700" type="number" step="0.0001"></div>
-      <div><label>中层 - 捻向 / 开关</label>
-        <div style="display:flex;gap:5px;">
-          <select id="c3_dir2" style="width:50%"><option value="Z">Z捻</option><option value="S">S捻</option></select>
-          <select id="c3_on2" style="width:50%"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select>
-        </div>
-      </div>
-      <div style="grid-column: 1 / -1;"><hr></div>
-      <div><label>外层 - 丝径（mm）</label><input id="c3_w3" value="0.03" type="number" step="0.001"></div>
-      <div><label>外层 - 股数</label><input id="c3_n3" value="6" type="number" step="1"></div>
-      <div><label>外层 - 设定捻距（mm）</label><input id="c3_p3" value="6.0000" type="number" step="0.0001"></div>
-      <div><label>外层 - 捻向 / 开关</label>
-        <div style="display:flex;gap:5px;">
-          <select id="c3_dir3" style="width:50%"><option value="Z">Z捻</option><option value="S" selected>S捻</option></select>
-          <select id="c3_on3" style="width:50%"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select>
-        </div>
-      </div>
+      <div><label>损耗预留 (%)</label><input id="c3_loss" value="5" type="number" step="0.1"></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="calcCoil3()">计算</button></div>
-    <div id="out_c3" style="margin-top:16px;"></div>
+    <div id="c3_layers" class="grid" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:14px"><button onclick="calcCoil3()">计算</button></div>
+    <div id="out_c3" style="margin-top:16px"></div>
   </div>
 
-  <!-- 外径反推 -->
   <div id="reverse" class="card hidden">
-    <h2>外径反推（增强版）</h2>
+    <h2>外径反推</h2>
     <div class="grid">
-      <div><label>结构类型</label><select id="v_type"><option value="rope77">7×7 缆绳</option><option value="coil1">单层绕丝</option><option value="coil2">双层绕丝</option><option value="coil3">三层绕丝</option></select></div>
-      <div><label>目标外径 OD（mm）</label><input id="v_od" value="1.48" type="number" step="0.001"></div>
-      <div><label>芯径（绕丝用，可空）</label><input id="v_core" value="0.12" type="number" step="0.001"></div>
+      <div><label>结构类型</label><select id="v_type"><option value="rope77">7x7 缆绳</option><option value="coil1">单层绕丝</option><option value="coil2">双层绕丝</option><option value="coil3">三层绕丝</option></select></div>
+      <div><label>目标外径 OD (mm)</label><input id="v_od" value="1.48" type="number" step="0.001"></div>
+      <div><label>芯径 (绕丝用，可空)</label><input id="v_core" value="0.12" type="number" step="0.001"></div>
       <div><label>工艺紧度</label><select id="v_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>成品长度（m）</label><input id="v_len" value="10" type="number" step="0.01"></div>
-      <div><label>损耗预留（%）</label><input id="v_loss" value="5" type="number" step="0.1"></div>
+      <div><label>成品长度 (m)</label><input id="v_len" value="10" type="number" step="0.01"></div>
+      <div><label>损耗预留 (%)</label><input id="v_loss" value="5" type="number" step="0.1"></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="calcReverse()">反推</button></div>
-    <div id="out_v" style="margin-top:16px;"></div>
+    <div class="row" style="margin-top:14px"><button onclick="calcReverse()">反推</button></div>
+    <div id="out_v" style="margin-top:16px"></div>
   </div>
 
-  <!-- 密绕专门计算（已修正） -->
   <div id="dense" class="card hidden">
-    <h2>密绕捻距专门反推计算（已校正）</h2>
-    <div class="small">使用几何模型修正，更符合实际生产</div>
-    <div class="grid" style="margin-top:12px;">
-      <div><label>芯轴 / 芯线直径（mm）</label><input id="d_core" value="0.12" type="number" step="0.001"></div>
-      <div><label>丝径（mm）</label><input id="d_wire" value="0.04" type="number" step="0.001"></div>
+    <h2>密绕捻距专门反推计算</h2>
+    <div class="small">使用几何修正模型，适合作为试样起点，最终参数仍建议按设备张力校准。</div>
+    <div class="grid" style="margin-top:12px">
+      <div><label>芯轴 / 芯线直径 (mm)</label><input id="d_core" value="0.12" type="number" step="0.001"></div>
+      <div><label>丝径 (mm)</label><input id="d_wire" value="0.04" type="number" step="0.001"></div>
       <div><label>股数</label><input id="d_n" value="6" type="number" step="1"></div>
-      <div><label>成品长度（m）</label><input id="d_len" value="5" type="number" step="0.01"></div>
+      <div><label>成品长度 (m)</label><input id="d_len" value="5" type="number" step="0.01"></div>
       <div><label>工艺模式</label><select id="d_mode"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>损耗预留（%）</label><input id="d_loss" value="5" type="number" step="0.1"></div>
+      <div><label>损耗预留 (%)</label><input id="d_loss" value="5" type="number" step="0.1"></div>
       <div><label>机台经验修正</label><select id="d_profile"><option value="multi" selected>多股并列密绕</option><option value="single">常规单层密绕</option></select></div>
       <div><label>目标用途</label><select id="d_goal"><option value="stable" selected>稳定生产</option><option value="start">推荐起始试样</option><option value="limit">理论极限密绕</option></select></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="calcDense()">独立计算密绕</button><button class="btn2" onclick="fillDense()">示例</button></div>
-    <div id="out_dense" style="margin-top:16px;"></div>
+    <div class="row" style="margin-top:14px"><button onclick="calcDense()">独立计算密绕</button><button class="btn2" onclick="fillDense()">示例</button></div>
+    <div id="out_dense" style="margin-top:16px"></div>
   </div>
 
-  <!-- 校准设置 -->
   <div id="settings" class="card hidden">
-    <h2>校准设置（本地保存）</h2>
-    <div class="muted">修改后只保存在当前浏览器</div>
-    <div class="grid" style="margin-top:12px;">
+    <h2>校准设置 (本地保存)</h2>
+    <div class="muted">校准参数保存在当前浏览器，可导出备份后换电脑导入。</div>
+    <div class="grid" style="margin-top:12px">
       <div><label>缆绳用丝修正系数</label><input id="s_rope_ratio" value="1.000" type="number" step="0.001"></div>
       <div><label>缆绳外径修正系数</label><input id="s_rope_od" value="1.000" type="number" step="0.001"></div>
       <div><label>绕丝用丝修正系数</label><input id="s_coil_ratio" value="1.000" type="number" step="0.001"></div>
       <div><label>绕丝外径修正系数</label><input id="s_coil_od" value="1.000" type="number" step="0.001"></div>
-      <div><label>7×7 效率修正系数</label><input id="s_rope_speed" value="1.000" type="number" step="0.001"></div>
+      <div><label>7x7 效率修正系数</label><input id="s_rope_speed" value="1.000" type="number" step="0.001"></div>
       <div><label>密绕捻距修正系数</label><input id="s_dense_pitch" value="1.000" type="number" step="0.001"></div>
     </div>
-    <div class="row" style="margin-top:14px;"><button onclick="saveSettings()">保存校准</button><button class="btn2" onclick="resetSettings()">恢复默认</button></div>
+    <div class="row" style="margin-top:14px">
+      <button onclick="saveSettings()">保存校准</button>
+      <button class="btn2" onclick="exportSettings()">导出校准</button>
+      <button class="btn2" onclick="importSettings()">导入校准</button>
+      <button class="btn2" onclick="resetSettings()">恢复默认</button>
+    </div>
   </div>
 
-  <!-- 历史记录 -->
   <div class="card">
     <h2>历史记录 / 导出</h2>
     <div class="row">
@@ -218,255 +185,239 @@ hr{border:none;border-top:1px solid #edf1f6;margin:14px 0}
       <button class="btn2" onclick="saveHistory()">保存到历史</button>
       <button class="btn2" onclick="showHistory()">查看历史</button>
       <button class="btn2" onclick="exportTxt()">导出 TXT</button>
+      <button class="btn2" onclick="clearHistory()">清空历史</button>
     </div>
     <pre id="historyBox" class="hidden"></pre>
   </div>
 
-<div style="text-align:center;color:#888;font-size:13px;margin:30px 0 10px;line-height:1.6;">
-  缆绳、绕丝工艺 <br>
-  <strong>🇨🇳&copy;©️2026</strong>
-</div>
+  <div style="text-align:center;color:#888;font-size:13px;margin:30px 0 10px;line-height:1.6">
+    缆绳、绕丝工艺<br><strong>© 2026</strong>
+  </div>
 </div>
 
 <script>
-// ====================== 无授权直接进入 ======================
 let currentText = "";
+const settingKeys = ["s_rope_ratio","s_rope_od","s_coil_ratio","s_coil_od","s_rope_speed","s_dense_pitch"];
 
 function showTab(id, btn) {
-  ['rope','coil1','coil2','coil3','reverse','dense','settings'].forEach(x => {
-    const el = document.getElementById(x);
-    if (el) el.classList.add('hidden');
+  ["rope","coil1","coil2","coil3","reverse","dense","settings"].forEach(x => document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+}
+function num(id){ return Number(document.getElementById(id).value); }
+function val(id){ return document.getElementById(id).value; }
+function getS(k, def){ return Number(localStorage.getItem(k) || def); }
+function pctLoss(loss){ return 1 + Math.max(0, loss) / 100; }
+function tightMul(t){ return t === "soft" ? 1.03 : (t === "tight" ? 0.97 : 1.00); }
+function tightOdMul(t){ return t === "soft" ? 1.05 : (t === "tight" ? 0.95 : 1.00); }
+function helixFactor(radius, pitch){ return pitch > 0 ? Math.sqrt(1 + Math.pow((2 * Math.PI * radius) / pitch, 2)) : NaN; }
+
+function validate(items) {
+  let errors = [];
+  document.querySelectorAll(".field-error").forEach(el => el.classList.remove("field-error"));
+  items.forEach(([id, label, rule]) => {
+    const input = document.getElementById(id);
+    const value = Number(input.value);
+    const ok = Number.isFinite(value) && rule(value);
+    if (!ok) {
+      input.classList.add("field-error");
+      errors.push(label);
+    }
   });
-  document.getElementById(id).classList.remove('hidden');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  return errors;
 }
-
-function helixFactor(radius, pitch) {
-  if (pitch === 0) return 1;
-  const c = 2 * Math.PI * radius;
-  return Math.sqrt(1 + (c / pitch) ** 2);
+function renderError(id, errors) {
+  if (!errors.length) return false;
+  document.getElementById(id).innerHTML = `<div class="error">请检查输入：${errors.join("、")}</div>`;
+  return true;
 }
-
-function tightMul(t) { return t === 'soft' ? 1.03 : (t === 'tight' ? 0.97 : 1.00); }
-function tightOdMul(t) { return t === 'soft' ? 1.05 : (t === 'tight' ? 0.95 : 1.00); }
 function setOut(id, html, text) {
   document.getElementById(id).innerHTML = html;
-  currentText = text || html;
+  currentText = text || html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
-function getS(k, def) { return +(localStorage.getItem(k) || def); }
+function kpi(title, value, note = "") {
+  return `<div class="kpi"><div class="muted">${title}</div><div class="big">${value}</div>${note ? `<div class="small">${note}</div>` : ""}</div>`;
+}
 
-// ====================== 密绕修正核心函数 ======================
 function calcLayerDenseP(n, wire, core, tight) {
-  const s_dense = getS('s_dense_pitch', '1.000');
-  let kTight = tight === 'soft' ? 1.035 : (tight === 'tight' ? 0.925 : 0.965);
-  const geomFactor = Math.max(0.94, Math.sqrt(1 - Math.pow((n * wire) / (Math.PI * (core + wire)), 2)));
-  return n * wire * kTight * geomFactor * s_dense;
+  const sDense = getS("s_dense_pitch", "1.000");
+  const kTight = tight === "soft" ? 1.035 : (tight === "tight" ? 0.925 : 0.965);
+  const ratio = (n * wire) / (Math.PI * (core + wire));
+  const geomFactor = Math.max(0.94, Math.sqrt(Math.max(0, 1 - ratio * ratio)));
+  return n * wire * kTight * geomFactor * sDense;
+}
+function coilLayerByPitch(coreDia, wireDia, n, pitch, len, tight, loss, onoff = "ON") {
+  if (onoff === "OFF") return {ratio:0, od:coreDia, total2:0, per2:0, perRatio:0, pitch, active:false};
+  const coilRatioFix = getS("s_coil_ratio","1.000");
+  const coilOdFix = getS("s_coil_od","1.000");
+  const pathDia = coreDia + wireDia;
+  const perRatio = Math.sqrt(1 + Math.pow((Math.PI * pathDia) / pitch, 2)) * tightMul(tight) * coilRatioFix;
+  const ratio = perRatio * n;
+  const od = (coreDia + 2 * wireDia) * tightOdMul(tight) * coilOdFix;
+  const total2 = ratio * len * pctLoss(loss);
+  const per2 = n > 0 ? total2 / n : 0;
+  return {ratio, od, total2, per2, perRatio, pitch, active:true};
+}
+function nextCoreDia(core, layers) {
+  return layers.reduce((dia, layer) => layer.active ? layer.od : dia, core);
+}
+function summarizeCoils(title, layers, len, loss) {
+  const active = layers.filter(x => x.active);
+  const totalRatio = active.reduce((s, x) => s + x.ratio, 0);
+  const total2 = active.reduce((s, x) => s + x.total2, 0);
+  const od = active.length ? active[active.length - 1].od : layers[0].od;
+  const lines = active.map(x => `${x.name}: ${x.n}股 ${x.dir} 捻距${x.pitch.toFixed(4)}mm 单股比1:${x.perRatio.toFixed(3)} 每股${x.per2.toFixed(2)}m`).join("\n");
+  const text = `[${title}]\n成品长度: ${len}m\n损耗: ${loss}%\n外径: ${od.toFixed(3)}mm\n总用丝比: 1:${totalRatio.toFixed(3)}\n含损耗总用丝: ${total2.toFixed(2)}m\n${lines}`;
+  const html = `
+    <div class="grid">
+      ${kpi("理论外径", `${od.toFixed(3)} mm`)}
+      ${kpi("总用丝比", `1 : ${totalRatio.toFixed(3)}`)}
+      ${kpi("总用丝(含损耗)", `${total2.toFixed(2)} m`)}
+    </div><hr>
+    <div class="summary">${active.map(x => `
+      <div class="layer-title">[${x.name}] ${x.n}股 | ${x.dir} | 捻距 ${x.pitch.toFixed(4)} mm</div>
+      <div class="grid">
+        ${kpi("单股用丝比", `1 : ${x.perRatio.toFixed(3)}`)}
+        ${kpi("每股建议用丝", `${x.per2.toFixed(2)} m`)}
+        ${kpi("推荐密绕捻距", `${x.denseP.toFixed(4)} mm`)}
+      </div>`).join("<hr>")}
+    </div>`;
+  return {html, text};
 }
 
-// ====================== 7×7缆绳 ======================
 function calcRope() {
-  const d = +document.getElementById('r_d').value || 0.2;
-  const L = +document.getElementById('r_L').value || 200;
-  const loss = +document.getElementById('r_loss').value || 5;
-  const spool = +document.getElementById('r_spool').value || 49;
-  const rpm = +document.getElementById('r_rpm').value || 30;
-  const p1 = +document.getElementById('r_p1').value || 20;
-  const p2 = +document.getElementById('r_p2').value || 5;
-  const p3 = +document.getElementById('r_p3').value || 6;
-  const tight = document.getElementById('r_tight').value;
-
-  const ropeRatioFix = getS('s_rope_ratio', '1.000');
-  const ropeOdFix = getS('s_rope_od', '1.000');
-  const ropeSpeedFix = getS('s_rope_speed', '1.000');
-
-  const K_inner = 0.6, K_outer = 0.5, K_cable = 0.4;
-  const h_inner = helixFactor(d * K_inner, p1);
-  const ratio_core_strand = 1 + 6 * h_inner;
-  const h_outer = helixFactor(d * K_outer, p2);
-  const ratio_outer_strand = 1 + 6 * h_outer;
-  const strandPathRadius = 3 * d * K_cable;
-  const h_cable = helixFactor(strandPathRadius, p3);
-
-  let totalRatio = ratio_core_strand + 6 * (ratio_outer_strand * h_cable);
-  totalRatio = totalRatio * tightMul(tight) * ropeRatioFix;
+  const errors = validate([["r_d","单丝直径>0",v=>v>0],["r_L","成品长度>0",v=>v>0],["r_loss","损耗>=0",v=>v>=0],["r_rpm","转速>0",v=>v>0],["r_p1","P1>0",v=>v>0],["r_p2","P2>0",v=>v>0],["r_p3","P3>0",v=>v>0]]);
+  if (renderError("out_rope", errors)) return;
+  const d = num("r_d"), L = num("r_L"), loss = num("r_loss"), spool = num("r_spool"), rpm = num("r_rpm");
+  const p1 = num("r_p1"), p2 = num("r_p2"), p3 = num("r_p3"), tight = val("r_tight");
+  const ropeRatioFix = getS("s_rope_ratio","1.000"), ropeOdFix = getS("s_rope_od","1.000"), ropeSpeedFix = getS("s_rope_speed","1.000");
+  const hInner = helixFactor(d * 0.6, p1);
+  const ratioCoreStrand = 1 + 6 * hInner;
+  const hOuter = helixFactor(d * 0.5, p2);
+  const ratioOuterStrand = 1 + 6 * hOuter;
+  const hCable = helixFactor(3 * d * 0.4, p3);
+  const totalRatio = (ratioCoreStrand + 6 * (ratioOuterStrand * hCable)) * tightMul(tight) * ropeRatioFix;
   const avgWireRatio = totalRatio / 49;
-  const maxWireRatio = (h_outer * h_cable) * tightMul(tight) * ropeRatioFix;
-
+  const maxWireRatio = hOuter * hCable * tightMul(tight) * ropeRatioFix;
   const speedMM = rpm * p1 * ropeSpeedFix;
   const od = 9 * d * tightOdMul(tight) * ropeOdFix;
-
-  const total = L * totalRatio;
-  const total2 = total * (1 + loss / 100);
-  let per2 = 0, perText = '';
-  if (spool === 49) {
-    per2 = L * maxWireRatio * (1 + loss / 100);
-    perText = '最长单丝';
-  } else {
-    per2 = L * (ratio_outer_strand * h_cable) * tightMul(tight) * ropeRatioFix * (1 + loss / 100);
-    perText = '外侧股';
-  }
-
-  const html = `
-    <div class="grid">
-      <div class="kpi"><div class="muted">平均单股用丝比</div><div class="big">1 : ${avgWireRatio.toFixed(3)}</div></div>
-      <div class="kpi" style="background:#fff4f4;border:1px solid #ffdcdc"><div class="muted">最长单丝用丝比</div><div class="big" style="color:#c62828">1 : ${maxWireRatio.toFixed(3)}</div></div>
-      <div class="kpi"><div class="muted">总用丝比</div><div class="big">1 : ${totalRatio.toFixed(2)}</div></div>
-    </div>
-    <hr>
-    <div class="grid">
-      <div class="kpi"><div class="muted">估算外径</div><div class="big">${od.toFixed(3)} mm</div></div>
-      <div class="kpi"><div class="muted">机台效率</div><div class="big" style="color:#0a7a33">${speedMM.toFixed(1)} mm/min</div></div>
-    </div>
-    <p>含损耗总用丝：<b class="ok">${total2.toFixed(2)} m</b></p>
-    <p>单管/组建议备料（${perText}）： <b class="bad">${per2.toFixed(2)} m</b></p>`;
-
-  setOut('out_rope', html, `[7×7缆绳] 总比${totalRatio.toFixed(2)} 外径${od.toFixed(3)}mm`);
+  const total2 = L * totalRatio * pctLoss(loss);
+  const per2 = spool === 49 ? L * maxWireRatio * pctLoss(loss) : L * ratioOuterStrand * hCable * tightMul(tight) * ropeRatioFix * pctLoss(loss);
+  const perText = spool === 49 ? "最长单丝" : "外侧股";
+  const html = `<div class="grid">${kpi("平均单股用丝比", `1 : ${avgWireRatio.toFixed(3)}`)}${kpi("最长单丝用丝比", `1 : ${maxWireRatio.toFixed(3)}`)}${kpi("总用丝比", `1 : ${totalRatio.toFixed(2)}`)}${kpi("估算外径", `${od.toFixed(3)} mm`)}${kpi("机台效率", `${speedMM.toFixed(1)} mm/min`)}${kpi(`备料建议(${perText})`, `${per2.toFixed(2)} m`)}</div><p>含损耗总用丝：<b class="ok">${total2.toFixed(2)} m</b></p>`;
+  setOut("out_rope", html, `[7x7缆绳]\n平均单股比: 1:${avgWireRatio.toFixed(3)}\n最长单丝比: 1:${maxWireRatio.toFixed(3)}\n总用丝比: 1:${totalRatio.toFixed(2)}\n外径: ${od.toFixed(3)}mm\n效率: ${speedMM.toFixed(1)}mm/min\n含损耗总用丝: ${total2.toFixed(2)}m\n备料建议(${perText}): ${per2.toFixed(2)}m`);
 }
-
-function fillRope() {
-  document.getElementById('r_d').value = 0.20;
-  document.getElementById('r_L').value = 200;
-  document.getElementById('r_p1').value = 20;
-  document.getElementById('r_p2').value = 5;
-  document.getElementById('r_p3').value = 6;
-  calcRope();
-}
-
-// ====================== 绕丝计算 ======================
-function coilLayerByPitch(coreDia, wireDia, n, pitch, len, tight, loss, onoff = 'ON') {
-  if (onoff === 'OFF') return {ratio:0, od:coreDia, total:0, total2:0, per:0, per2:0, pitch};
-  const coilRatioFix = getS('s_coil_ratio','1.000');
-  const coilOdFix = getS('s_coil_od','1.000');
-  const pathDia = coreDia + wireDia;
-  const one = Math.sqrt(1 + Math.pow((Math.PI * pathDia) / pitch, 2));
-  const ratio = one * n * tightMul(tight) * coilRatioFix;
-  const od = (coreDia + 2 * wireDia) * tightOdMul(tight) * coilOdFix;
-  const total = ratio * len;
-  const total2 = total * (1 + loss / 100);
-  const per2 = n > 0 ? total2 / n : 0;
-  const perRatio = n > 0 ? ratio / n : 0;
-  return {ratio, od, total2, per2, perRatio, pitch};
-}
+function fillRope(){["r_d","r_L","r_p1","r_p2","r_p3"].forEach((id,i)=>document.getElementById(id).value=[0.20,200,20,5,6][i]);calcRope();}
 
 function calcCoil1() {
-  const core = +document.getElementById('c1_core').value;
-  const wire = +document.getElementById('c1_wire').value;
-  const n = +document.getElementById('c1_n').value;
-  const pitch = +document.getElementById('c1_pitch').value;
-  const dir = document.getElementById('c1_dir').value;
-  const onoff = document.getElementById('c1_on').value;
-  const len = +document.getElementById('c1_len').value;
-  const tight = document.getElementById('c1_tight').value;
-  const loss = +document.getElementById('c1_loss').value;
-
-  const x = coilLayerByPitch(core, wire, n, pitch, len, tight, loss, onoff);
-  const denseP = (n > 0 && onoff === 'ON') ? calcLayerDenseP(n, wire, core, tight) : 0;
-
-  const html = `
-    <div class="grid">
-      <div class="kpi"><div class="muted">理论外径</div><div class="big">${x.od.toFixed(3)} mm</div></div>
-      <div class="kpi"><div class="muted">总用丝(含损耗)</div><div class="big">${x.total2.toFixed(2)} m</div></div>
-    </div>
-    <hr>
-    <div class="layer-title">[单层] ${n}股 | ${dir} | 捻距 ${x.pitch.toFixed(4)} mm</div>
-    <div class="grid">
-      <div class="kpi"><div class="muted">单股用丝比</div><div class="big">1 : ${x.perRatio.toFixed(3)}</div></div>
-      <div class="kpi"><div class="muted">每股建议用丝</div><div class="big">${x.per2.toFixed(2)} m</div></div>
-      <div class="kpi" style="border-left:3px solid #0a7a33"><div class="muted">推荐密绕捻距</div><div class="big" style="color:#0a7a33">${denseP.toFixed(4)} mm</div></div>
-    </div>`;
-  setOut('out_c1', html);
+  const errors = validate([["c1_core","芯径>=0",v=>v>=0],["c1_wire","丝径>0",v=>v>0],["c1_n","股数为正整数",v=>v>0&&Number.isInteger(v)],["c1_pitch","捻距>0",v=>v>0],["c1_len","长度>0",v=>v>0],["c1_loss","损耗>=0",v=>v>=0]]);
+  if (renderError("out_c1", errors)) return;
+  const layer = coilLayerByPitch(num("c1_core"), num("c1_wire"), num("c1_n"), num("c1_pitch"), num("c1_len"), val("c1_tight"), num("c1_loss"), val("c1_on"));
+  Object.assign(layer, {name:"单层", n:num("c1_n"), dir:val("c1_dir"), denseP:calcLayerDenseP(num("c1_n"), num("c1_wire"), num("c1_core"), val("c1_tight"))});
+  const out = summarizeCoils("单层绕丝", [layer], num("c1_len"), num("c1_loss"));
+  setOut("out_c1", out.html, out.text);
+}
+function calcCoil2() {
+  const errors = validate([["c2_core","芯径>=0",v=>v>=0],["c2_len","长度>0",v=>v>0],["c2_loss","损耗>=0",v=>v>=0],["c2_w1","内层丝径>0",v=>v>0],["c2_n1","内层股数为正整数",v=>v>0&&Number.isInteger(v)],["c2_p1","内层捻距>0",v=>v>0],["c2_w2","外层丝径>0",v=>v>0],["c2_n2","外层股数为正整数",v=>v>0&&Number.isInteger(v)],["c2_p2","外层捻距>0",v=>v>0]]);
+  if (renderError("out_c2", errors)) return;
+  const len = num("c2_len"), loss = num("c2_loss"), tight = val("c2_tight");
+  const inner = coilLayerByPitch(num("c2_core"), num("c2_w1"), num("c2_n1"), num("c2_p1"), len, tight, loss, val("c2_on1"));
+  Object.assign(inner, {name:"内层", n:num("c2_n1"), dir:val("c2_dir1"), denseP:calcLayerDenseP(num("c2_n1"), num("c2_w1"), num("c2_core"), tight)});
+  const outerCore = nextCoreDia(num("c2_core"), [inner]);
+  const outer = coilLayerByPitch(outerCore, num("c2_w2"), num("c2_n2"), num("c2_p2"), len, tight, loss, val("c2_on2"));
+  Object.assign(outer, {name:"外层", n:num("c2_n2"), dir:val("c2_dir2"), denseP:calcLayerDenseP(num("c2_n2"), num("c2_w2"), outerCore, tight)});
+  const out = summarizeCoils("双层绕丝", [inner, outer], len, loss);
+  setOut("out_c2", out.html, out.text);
+}
+function calcCoil3() {
+  const ids = ["1","2","3"];
+  const rules = [["c3_core","芯径>=0",v=>v>=0],["c3_len","长度>0",v=>v>0],["c3_loss","损耗>=0",v=>v>=0]];
+  ids.forEach(i => rules.push([`c3_w${i}`,`第${i}层丝径>0`,v=>v>0],[`c3_n${i}`,`第${i}层股数为正整数`,v=>v>0&&Number.isInteger(v)],[`c3_p${i}`,`第${i}层捻距>0`,v=>v>0]));
+  const errors = validate(rules);
+  if (renderError("out_c3", errors)) return;
+  const len = num("c3_len"), loss = num("c3_loss"), tight = val("c3_tight");
+  let core = num("c3_core");
+  const layers = ids.map((i, idx) => {
+    const layer = coilLayerByPitch(core, num(`c3_w${i}`), num(`c3_n${i}`), num(`c3_p${i}`), len, tight, loss, val(`c3_on${i}`));
+    Object.assign(layer, {name:["内层","中层","外层"][idx], n:num(`c3_n${i}`), dir:val(`c3_dir${i}`), denseP:calcLayerDenseP(num(`c3_n${i}`), num(`c3_w${i}`), core, tight)});
+    core = layer.active ? layer.od : core;
+    return layer;
+  });
+  const out = summarizeCoils("三层绕丝", layers, len, loss);
+  setOut("out_c3", out.html, out.text);
+}
+function initCoil3() {
+  const presets = [["内层",0.04,6,0.8566,"Z","ON"],["中层",0.04,6,0.6700,"Z","ON"],["外层",0.03,6,6.0000,"S","ON"]];
+  document.getElementById("c3_layers").innerHTML = presets.map((p,i) => {
+    const n = i + 1;
+    return `<div style="grid-column:1/-1"><hr></div><div><label>${p[0]} - 丝径 (mm)</label><input id="c3_w${n}" value="${p[1]}" type="number" step="0.001"></div><div><label>${p[0]} - 股数</label><input id="c3_n${n}" value="${p[2]}" type="number" step="1"></div><div><label>${p[0]} - 设定捻距 (mm)</label><input id="c3_p${n}" value="${p[3]}" type="number" step="0.0001"></div><div><label>${p[0]} - 捻向</label><select id="c3_dir${n}"><option value="Z"${p[4]==="Z"?" selected":""}>Z捻</option><option value="S"${p[4]==="S"?" selected":""}>S捻</option></select></div><div><label>${p[0]} - 开关</label><select id="c3_on${n}"><option value="ON"${p[5]==="ON"?" selected":""}>ON</option><option value="OFF">OFF</option></select></div>`;
+  }).join("");
 }
 
-function calcCoil2() { /* 同理实现，篇幅原因此处省略完整代码，可按calcCoil1模式扩展 */ alert('双层计算功能已保留，请按需求补充完整calcCoil2函数'); }
-function calcCoil3() { /* 同理 */ alert('三层计算功能已保留，请按需求补充完整calcCoil3函数'); }
-function calcReverse() { alert('外径反推功能已保留，请按需求补充完整calcReverse函数'); }
-
-// ====================== 密绕专门计算 ======================
-function calcDense() {
-  const core = +document.getElementById('d_core').value;
-  const wire = +document.getElementById('d_wire').value;
-  const n = Math.max(1, +document.getElementById('d_n').value);
-  const len = +document.getElementById('d_len').value;
-  const mode = document.getElementById('d_mode').value;
-  const loss = +document.getElementById('d_loss').value;
-  const goal = document.getElementById('d_goal').value;
-  const profile = document.getElementById('d_profile').value;
-  const denseFix = getS('s_dense_pitch','1.000');
-
-  let p_use = 0, p_limit = 0, p_start = 0, p_stable = 0, note = '';
-  let ratio = 0, od = (core + 2*wire) * tightOdMul(mode);
-
-  if (profile === 'multi') {
-    const geom = Math.max(0.94, Math.sqrt(1 - Math.pow((n*wire)/(Math.PI*(core+wire)), 2)));
-    p_start = n * wire * 1.02 * geom * denseFix;
-    p_stable = n * wire * (mode==='soft'?1.04:(mode==='tight'?0.91:0.96)) * geom * denseFix;
-    p_limit = n * wire * 0.89 * geom * denseFix;
-    p_use = goal==='limit' ? p_limit : (goal==='start' ? p_start : p_stable);
-    note = '多股并列密绕 - 几何修正版';
+function calcReverse() {
+  const errors = validate([["v_od","目标外径>0",v=>v>0],["v_core","芯径>=0",v=>v>=0],["v_len","长度>0",v=>v>0],["v_loss","损耗>=0",v=>v>=0]]);
+  if (renderError("out_v", errors)) return;
+  const type = val("v_type"), target = num("v_od"), core = num("v_core"), tight = val("v_tight");
+  const odFix = type === "rope77" ? getS("s_rope_od","1.000") : getS("s_coil_od","1.000");
+  const adjusted = target / tightOdMul(tight) / odFix;
+  let html = "", text = "";
+  if (type === "rope77") {
+    const d = adjusted / 9;
+    html = `<div class="grid">${kpi("建议单丝直径", `${d.toFixed(4)} mm`)}${kpi("目标外径", `${target.toFixed(3)} mm`)}</div><p class="muted">7x7 外径按约 9 x 单丝直径估算。</p>`;
+    text = `[外径反推-7x7]\n目标外径: ${target.toFixed(3)}mm\n建议单丝直径: ${d.toFixed(4)}mm`;
   } else {
-    p_stable = wire * (mode==='soft'?1.04:(mode==='tight'?0.90:0.96)) * denseFix;
-    p_use = p_stable;
-    note = '单层螺旋密绕';
+    const layers = type === "coil1" ? 1 : (type === "coil2" ? 2 : 3);
+    const wire = Math.max(0, (adjusted - core) / (2 * layers));
+    html = `<div class="grid">${kpi("建议每层丝径", `${wire.toFixed(4)} mm`)}${kpi("层数", `${layers}`)}${kpi("目标外径", `${target.toFixed(3)} mm`)}</div><p class="muted">按每层径向增加 2 x 丝径估算，适合作为选丝起点。</p>`;
+    text = `[外径反推-${layers}层绕丝]\n目标外径: ${target.toFixed(3)}mm\n芯径: ${core.toFixed(3)}mm\n建议丝径: ${wire.toFixed(4)}mm`;
   }
-
-  ratio = n * Math.sqrt(1 + Math.pow(Math.PI * (core + wire) / p_use, 2));
-  const total2 = ratio * len * (1 + loss/100);
+  setOut("out_v", html, text);
+}
+function calcDense() {
+  const errors = validate([["d_core","芯径>=0",v=>v>=0],["d_wire","丝径>0",v=>v>0],["d_n","股数为正整数",v=>v>0&&Number.isInteger(v)],["d_len","长度>0",v=>v>0],["d_loss","损耗>=0",v=>v>=0]]);
+  if (renderError("out_dense", errors)) return;
+  const core = num("d_core"), wire = num("d_wire"), n = num("d_n"), len = num("d_len"), mode = val("d_mode"), loss = num("d_loss");
+  const goal = val("d_goal"), profile = val("d_profile"), denseFix = getS("s_dense_pitch","1.000");
+  let pUse, note;
+  if (profile === "multi") {
+    const geom = Math.max(0.94, Math.sqrt(Math.max(0, 1 - Math.pow((n * wire) / (Math.PI * (core + wire)), 2))));
+    const pStart = n * wire * 1.02 * geom * denseFix;
+    const pStable = n * wire * (mode === "soft" ? 1.04 : (mode === "tight" ? 0.91 : 0.96)) * geom * denseFix;
+    const pLimit = n * wire * 0.89 * geom * denseFix;
+    pUse = goal === "limit" ? pLimit : (goal === "start" ? pStart : pStable);
+    note = "多股并列密绕 - 几何修正版";
+  } else {
+    pUse = wire * (mode === "soft" ? 1.04 : (mode === "tight" ? 0.90 : 0.96)) * denseFix;
+    note = "常规单层螺旋密绕";
+  }
+  const ratio = n * Math.sqrt(1 + Math.pow(Math.PI * (core + wire) / pUse, 2));
+  const total2 = ratio * len * pctLoss(loss);
   const per2 = total2 / n;
   const perRatio = ratio / n;
+  const od = (core + 2 * wire) * tightOdMul(mode) * getS("s_coil_od","1.000");
+  const html = `<div class="grid">${kpi("推荐密绕捻距", `${pUse.toFixed(4)} mm`)}${kpi("理论外径", `${od.toFixed(3)} mm`)}${kpi("单股用丝比", `1 : ${perRatio.toFixed(3)}`)}${kpi("总用丝(含损耗)", `${total2.toFixed(2)} m`)}${kpi("每股建议", `${per2.toFixed(2)} m`)}</div><p class="muted">${note}</p>`;
+  setOut("out_dense", html, `[密绕计算]\n推荐捻距: ${pUse.toFixed(4)}mm\n外径: ${od.toFixed(3)}mm\n单股用丝比: 1:${perRatio.toFixed(3)}\n含损耗总用丝: ${total2.toFixed(2)}m\n每股建议: ${per2.toFixed(2)}m`);
+}
+function fillDense(){document.getElementById("d_core").value=0.12;document.getElementById("d_wire").value=0.04;document.getElementById("d_n").value=6;document.getElementById("d_len").value=5;document.getElementById("d_mode").value="normal";document.getElementById("d_profile").value="multi";document.getElementById("d_goal").value="stable";calcDense();}
 
-  const html = `
-    <div class="grid">
-      <div class="kpi"><div class="muted">推荐密绕捻距</div><div class="big">${p_use.toFixed(4)} mm</div></div>
-      <div class="kpi"><div class="muted">理论外径</div><div class="big">${od.toFixed(3)} mm</div></div>
-      <div class="kpi"><div class="muted">单股用丝比</div><div class="big">1 : ${perRatio.toFixed(3)}</div></div>
-    </div>
-    <p>含损耗总用丝：<b class="ok">${total2.toFixed(2)} m</b>　每股建议：<b class="ok">${per2.toFixed(2)} m</b></p>
-    <p class="muted">${note}</p>`;
-  setOut('out_dense', html);
-}
+function saveSettings(){settingKeys.forEach(id=>localStorage.setItem(id, document.getElementById(id).value));alert("校准参数已保存");}
+function loadSettings(){settingKeys.forEach(id=>{const stored=localStorage.getItem(id);if(stored!==null)document.getElementById(id).value=stored;});}
+function resetSettings(){if(!confirm("确认恢复默认校准参数？"))return;settingKeys.forEach(k=>{localStorage.setItem(k,"1.000");document.getElementById(k).value="1.000";});alert("已恢复默认");}
+function exportSettings(){const data=Object.fromEntries(settingKeys.map(k=>[k,document.getElementById(k).value]));downloadText("绕丝校准参数.json", JSON.stringify(data,null,2));}
+function importSettings(){const raw=prompt("粘贴导出的校准 JSON");if(!raw)return;try{const data=JSON.parse(raw);settingKeys.forEach(k=>{if(data[k]!==undefined){localStorage.setItem(k,String(data[k]));document.getElementById(k).value=String(data[k]);}});alert("校准参数已导入");}catch(e){alert("JSON 格式不正确");}}
+function copyResult(){if(!currentText){alert("请先计算");return;}navigator.clipboard.writeText(currentText);alert("已复制到剪贴板");}
+function getHistory(){try{return JSON.parse(localStorage.getItem("coil_history")||"[]");}catch(e){return[];}}
+function saveHistory(){if(!currentText){alert("请先计算");return;}const history=getHistory();history.unshift({time:new Date().toLocaleString(),text:currentText});localStorage.setItem("coil_history",JSON.stringify(history.slice(0,50)));showHistory();}
+function showHistory(){const box=document.getElementById("historyBox");const history=getHistory();box.classList.remove("hidden");box.textContent=history.length?history.map((x,i)=>`#${i+1} ${x.time}\n${x.text}`).join("\n\n---\n\n"):"暂无历史记录";}
+function clearHistory(){if(!confirm("确认清空历史记录？"))return;localStorage.removeItem("coil_history");showHistory();}
+function exportTxt(){if(!currentText){alert("请先计算");return;}downloadText("绕丝计算结果.txt", currentText);}
+function downloadText(filename,text){const blob=new Blob([text],{type:"text/plain;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);}
 
-function fillDense() {
-  document.getElementById('d_core').value = 0.12;
-  document.getElementById('d_wire').value = 0.04;
-  document.getElementById('d_n').value = 6;
-  document.getElementById('d_len').value = 5;
-  document.getElementById('d_mode').value = 'normal';
-  document.getElementById('d_profile').value = 'multi';
-  document.getElementById('d_goal').value = 'stable';
-  calcDense();
-}
-
-// ====================== 辅助功能 ======================
-function saveSettings() {
-  ['s_rope_ratio','s_rope_od','s_coil_ratio','s_coil_od','s_rope_speed','s_dense_pitch'].forEach(id => {
-    localStorage.setItem(id, document.getElementById(id).value);
-  });
-  alert('校准参数已保存');
-}
-function resetSettings() {
-  ['s_rope_ratio','s_rope_od','s_coil_ratio','s_coil_od','s_rope_speed','s_dense_pitch'].forEach(k => localStorage.setItem(k, '1.000'));
-  alert('已恢复默认');
-}
-function copyResult() {
-  if (!currentText) { alert('请先计算'); return; }
-  navigator.clipboard.writeText(currentText);
-  alert('已复制到剪贴板');
-}
-function saveHistory() { alert('历史记录功能已保留'); }
-function showHistory() { alert('历史记录功能已保留'); }
-function exportTxt() { 
-  if (!currentText) { alert('请先计算'); return; }
-  const blob = new Blob([currentText], {type: 'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = '绕丝计算结果.txt';
-  a.click();
-}
-
-// 初始化
-document.addEventListener('DOMContentLoaded', () => {
-  showTab('rope', document.querySelector('.tab.active'));
+document.addEventListener("DOMContentLoaded", () => {
+  initCoil3();
+  loadSettings();
+  showTab("rope", document.querySelector(".tab.active"));
   calcRope();
 });
 </script>

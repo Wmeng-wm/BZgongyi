@@ -1,33 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>医疗编织工艺平台</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>医疗编织工艺计算平台</title>
 <style>
-body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei";background:#f4f6fb;}
-.header{padding:16px;background:#111;color:#fff;text-align:center;font-weight:700;font-size:18px;}
-.tabs{display:flex;background:#fff;border-bottom:1px solid #eee;}
-.tab{flex:1;padding:14px;text-align:center;cursor:pointer;font-size:14px;}
-.tab.active{color:#22c55e;font-weight:700;border-bottom:3px solid #22c55e;}
-iframe{width:100%;height:calc(100vh - 100px);border:none;}
+:root{--bg:#f4f6fb;--card:#fff;--text:#111827;--muted:#64748b;--line:#e2e8f0;--primary:#111827}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:24px 14px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:26px}
+.muted{color:var(--muted);line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tool{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;text-decoration:none;color:inherit;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+.tool:hover{border-color:#111827;transform:translateY(-1px)}
+.title{font-size:18px;font-weight:800;margin-bottom:8px}
+.tag{display:inline-block;margin-top:14px;background:#f1f5f9;border-radius:999px;padding:5px 10px;font-size:12px;color:#334155}
+.footer{text-align:center;color:#94a3b8;font-size:13px;margin-top:28px}
 </style>
 </head>
 <body>
-<div class="header">医疗编织工艺计算平台</div>
-<div class="tabs">
-<div class="tab active" onclick="switchTab('braid.html', this)">编织计算</div>
-<div class="tab" onclick="switchTab('coil.html', this)">绕丝计算</div>
-<div class="tab" onclick="switchTab('single.html', this)">单锭机</div>
-<div class="tab" onclick="switchTab('weight.html', this)">克重转换</div>
-</div>
-<iframe id="frame" src="braid.html"></iframe>
-<script>
-function switchTab(page, el){
-document.getElementById('frame').src = page;
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-el.classList.add('active');
-}
-</script>
+<main class="wrap">
+  <div class="header">
+    <div>
+      <h1>医疗编织工艺计算平台</h1>
+      <div class="muted">编织、绕丝、单锭机和克重换算工具入口。各模块直接打开，避免 iframe 带来的高度、复制和分享问题。</div>
+    </div>
+  </div>
+  <section class="grid">
+    <a class="tool" href="braid.html">
+      <div class="title">编织计算</div>
+      <div class="muted">PPI、节距、编织角度、用丝比和总用丝估算。</div>
+      <span class="tag">braid.html</span>
+    </a>
+    <a class="tool" href="coil.html">
+      <div class="title">绕丝 / 缆绳计算</div>
+      <div class="muted">7x7 缆绳、单层/双层/三层绕丝、密绕和外径反推。</div>
+      <span class="tag">coil.html</span>
+    </a>
+    <a class="tool" href="single.html">
+      <div class="title">单锭机计算</div>
+      <div class="muted">宽度、旦尼尔、节距互算和材料系数参考。</div>
+      <span class="tag">single.html</span>
+    </a>
+    <a class="tool" href="weight.html">
+      <div class="title">克重转换</div>
+      <div class="muted">金属丝、纤维丝重量、长度和单股长度换算。</div>
+      <span class="tag">weight.html</span>
+    </a>
+    <a class="tool" href="calculator-tests.html">
+      <div class="title">公式测试</div>
+      <div class="muted">修改核心公式后，用浏览器快速检查测试是否通过。</div>
+      <span class="tag">calculator-tests.html</span>
+    </a>
+  </section>
+  <div class="footer">© 2026</div>
+</main>
 </body>
 </html>
