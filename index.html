@@ -19,7 +19,7 @@
   --text3: #8E8E93;
   --sep: #C6C6C8;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --tab-h: calc(56px + var(--safe-bottom));
+  --tab-h: calc(64px + var(--safe-bottom));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
@@ -30,6 +30,7 @@ body{
   font-size:15px;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
 }
 body.no-scroll{overflow:hidden}
 
@@ -44,14 +45,14 @@ body.no-scroll{overflow:hidden}
   display:flex;
 }
 .tab-btn{
-  flex:1;height:56px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:3px;
-  color:var(--text3);font-size:11px;font-weight:500;
+  flex:1;height:64px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+  color:var(--text3);font-size:12px;font-weight:500;
   background:none;border:none;cursor:pointer;
   transition:color 0.15s;
 }
 .tab-btn.active{color:var(--blue)}
-.tab-btn svg{width:28px;height:28px}
+.tab-btn svg{width:30px;height:30px}
 .tab-btn .badge{
   position:absolute;top:2px;margin-left:16px;
   width:8px;height:8px;border-radius:50%;background:var(--red);
@@ -649,7 +650,6 @@ function coilCalc2(){
 function initCoil3(){
   const presets=[['内层',0.04,6,0.8566,'Z','ON'],['中层',0.04,6,0.6700,'Z','ON'],['外层',0.03,6,6.0000,'S','ON']];
   document.getElementById('c3_layers').innerHTML=presets.map((p,i)=>{const n=i+1;return `<div style="grid-column:1/-1;border-top:1px solid var(--sep);margin-top:4px"></div><div><label>${p[0]}丝径</label><input id="c3_w${n}" value="${p[1]}" type="number" step="0.001"></div><div><label>${p[0]}股数</label><input id="c3_n${n}" value="${p[2]}" type="number" step="1"></div><div><label>${p[0]}捻距</label><input id="c3_p${n}" value="${p[3]}" type="number" step="0.0001"></div><div><label>${p[0]}捻向</label><select id="c3_dir${n}"><option value="Z"${p[4]==='Z'?' selected':''}>Z捻</option><option value="S"${p[4]==='S'?' selected':''}>S捻</option></select></div><div><label>${p[0]}开关</label><select id="c3_on${n}"><option value="ON"${p[5]==='ON'?' selected':''}>ON</option><option value="OFF">OFF</option></select></div>`}).join('')}
-}
 function coilCalc3(){
   const ids=['1','2','3'],rules=[['c3_core','芯径>=0',v=>v>=0],['c3_len','长度>0',v=>v>0],['c3_loss','损耗>=0',v=>v>=0]];
   ids.forEach(i=>rules.push([`c3_w${i}`,`第${i}层丝径>0`,v=>v>0],[`c3_n${i}`,`第${i}层股数为正整数`,v=>v>0&&Number.isInteger(v)],[`c3_p${i}`,`第${i}层捻距>0`,v=>v>0]));
