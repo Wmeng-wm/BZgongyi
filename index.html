@@ -232,8 +232,6 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <button class="tab" onclick="coilShowTab('coil1',this)">单层绕丝</button>
       <button class="tab" onclick="coilShowTab('coil2',this)">双层绕丝</button>
       <button class="tab" onclick="coilShowTab('coil3',this)">三层绕丝</button>
-      <button class="tab" onclick="coilShowTab('reverse',this)">外径反推</button>
-      <button class="tab" onclick="coilShowTab('dense',this)">密绕计算</button>
       <button class="tab" onclick="coilShowTab('settings',this)">⚙</button>
     </div>
   </div>
@@ -255,6 +253,8 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>7x7 总捻向</label><select id="r_dir3"><option value="Z" selected>Z捻</option><option value="S">S捻</option></select></div>
       <div><label>工艺紧度</label><select id="r_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
     </div>
+    <div style="border-top:1px solid var(--sep);margin:8px 0"></div>
+    <div class="row gap8"><div style="flex:1"><label>目标外径 (mm)</label><input id="r_od_target" type="number" step="0.001" placeholder="反推丝径"></div><button class="btn-sm primary" style="align-self:flex-end;flex-shrink:0" onclick="ropeRevWire()">← 反推</button></div>
     <div class="row mt8"><button class="btn" onclick="coilCalcRope()">计算缆绳</button><button class="btn-sm ghost" onclick="coilFillRope()">示例</button></div>
     <div id="out_rope" class="mt8"></div>
   </div>
@@ -265,13 +265,17 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>芯径 (mm)</label><input id="c1_core" value="0.12" type="number" step="0.001"></div>
       <div><label>丝径 (mm)</label><input id="c1_wire" value="0.04" type="number" step="0.001"></div>
       <div><label>股数</label><input id="c1_n" value="6" type="number" step="1"></div>
-      <div><label>设定捻距 (mm)</label><input id="c1_pitch" value="0.18" type="number" step="0.0001"></div>
+      <div><label>设定捻距 (mm)</label><input id="c1_pitch" value="0.18" type="number" step="0.0001" oninput="coil1AngleFromPitch()"></div>
+      <div><label>绕线角度 (°)</label><input id="c1_angle" value="" type="number" step="0.1" placeholder="自动" oninput="coil1PitchFromAngle()"></div>
       <div><label>捻向</label><select id="c1_dir"><option value="Z">Z捻</option><option value="S">S捻</option></select></div>
       <div><label>层开关</label><select id="c1_on"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select></div>
       <div><label>成品长度 (m)</label><input id="c1_len" value="5" type="number" step="0.01"></div>
       <div><label>工艺紧度</label><select id="c1_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
       <div><label>损耗预留 (%)</label><input id="c1_loss" value="5" type="number" step="0.1"></div>
+      <div><label>组间间隙 (mm)</label><input id="c1_gap" value="0" type="number" step="0.001"></div>
     </div>
+    <div style="border-top:1px solid var(--sep);margin:8px 0"></div>
+    <div class="row gap8"><div style="flex:1"><label>目标外径 (mm)</label><input id="c1_od_target" type="number" step="0.001" placeholder="反推丝径"></div><button class="btn-sm primary" style="align-self:flex-end;flex-shrink:0" onclick="coil1RevWire()">← 反推</button></div>
     <div class="row mt8"><button class="btn" onclick="coilCalc1()">计算</button></div>
     <div id="out_c1" class="mt8"></div>
   </div>
@@ -284,13 +288,17 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>工艺紧度</label><select id="c2_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
       <div><label>损耗预留 (%)</label><input id="c2_loss" value="5" type="number" step="0.1"></div>
     </div>
+    <div style="border-top:1px solid var(--sep);margin:8px 0"></div>
+    <div class="row gap8"><div style="flex:1"><label>目标外径 (mm)</label><input id="c2_od_target" type="number" step="0.001" placeholder="反推丝径"></div><button class="btn-sm primary" style="align-self:flex-end;flex-shrink:0" onclick="coil2RevWire()">← 反推</button></div>
     <div style="border-top:1px solid var(--sep);margin:10px 0"></div>
     <div class="grid2">
       <div><label>内层-丝径 (mm)</label><input id="c2_w1" value="0.04" type="number" step="0.001"></div>
       <div><label>内层-股数</label><input id="c2_n1" value="6" type="number" step="1"></div>
-      <div><label>内层-捻距 (mm)</label><input id="c2_p1" value="0.8566" type="number" step="0.0001"></div>
+      <div><label>内层-捻距 (mm)</label><input id="c2_p1" value="0.8566" type="number" step="0.0001" oninput="coil2AngleFromPitch()"></div>
+      <div><label>内层-角度 (°)</label><input id="c2_angle" value="" type="number" step="0.1" placeholder="自动" oninput="coil2PitchFromAngle()"></div>
       <div><label>内层-捻向</label><select id="c2_dir1"><option value="Z">Z捻</option><option value="S">S捻</option></select></div>
       <div><label>内层-开关</label><select id="c2_on1"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select></div>
+      <div><label>内层-间隙 (mm)</label><input id="c2_gap1" value="0" type="number" step="0.001"></div>
     </div>
     <div style="border-top:1px solid var(--sep);margin:10px 0"></div>
     <div class="grid2">
@@ -299,6 +307,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>外层-捻距 (mm)</label><input id="c2_p2" value="0.6700" type="number" step="0.0001"></div>
       <div><label>外层-捻向</label><select id="c2_dir2"><option value="Z">Z捻</option><option value="S">S捻</option></select></div>
       <div><label>外层-开关</label><select id="c2_on2"><option value="ON" selected>ON</option><option value="OFF">OFF</option></select></div>
+      <div><label>外层-间隙 (mm)</label><input id="c2_gap2" value="0" type="number" step="0.001"></div>
     </div>
     <div class="row mt8"><button class="btn" onclick="coilCalc2()">计算</button></div>
     <div id="out_c2" class="mt8"></div>
@@ -312,40 +321,11 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>工艺紧度</label><select id="c3_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
       <div><label>损耗预留 (%)</label><input id="c3_loss" value="5" type="number" step="0.1"></div>
     </div>
+    <div style="border-top:1px solid var(--sep);margin:8px 0"></div>
+    <div class="row gap8"><div style="flex:1"><label>目标外径 (mm)</label><input id="c3_od_target" type="number" step="0.001" placeholder="反推丝径"></div><button class="btn-sm primary" style="align-self:flex-end;flex-shrink:0" onclick="coil3RevWire()">← 反推</button></div>
     <div id="c3_layers" class="grid2 mt8"></div>
     <div class="row mt8"><button class="btn" onclick="coilCalc3()">计算</button></div>
     <div id="out_c3" class="mt8"></div>
-  </div>
-
-  <!-- Reverse -->
-  <div class="card hidden" id="coil-reverse">
-    <div class="grid2">
-      <div><label>结构类型</label><select id="v_type"><option value="rope77">7x7缆绳</option><option value="coil1">单层绕丝</option><option value="coil2">双层绕丝</option><option value="coil3">三层绕丝</option></select></div>
-      <div><label>目标外径 OD (mm)</label><input id="v_od" value="1.48" type="number" step="0.001"></div>
-      <div><label>芯径 (可选)</label><input id="v_core" value="0.12" type="number" step="0.001"></div>
-      <div><label>工艺紧度</label><select id="v_tight"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>成品长度 (m)</label><input id="v_len" value="10" type="number" step="0.01"></div>
-      <div><label>损耗预留 (%)</label><input id="v_loss" value="5" type="number" step="0.1"></div>
-    </div>
-    <div class="row mt8"><button class="btn" onclick="coilCalcRev()">反推</button></div>
-    <div id="out_v" class="mt8"></div>
-  </div>
-
-  <!-- Dense -->
-  <div class="card hidden" id="coil-dense">
-    <div class="muted mb8">使用几何修正模型，适合作为试样起点</div>
-    <div class="grid2">
-      <div><label>芯轴直径 (mm)</label><input id="d_core" value="0.12" type="number" step="0.001"></div>
-      <div><label>丝径 (mm)</label><input id="d_wire" value="0.04" type="number" step="0.001"></div>
-      <div><label>股数</label><input id="d_n" value="6" type="number" step="1"></div>
-      <div><label>成品长度 (m)</label><input id="d_len" value="5" type="number" step="0.01"></div>
-      <div><label>工艺模式</label><select id="d_mode"><option value="soft">偏松</option><option value="normal" selected>标准</option><option value="tight">偏紧</option></select></div>
-      <div><label>损耗预留 (%)</label><input id="d_loss" value="5" type="number" step="0.1"></div>
-      <div><label>机台经验</label><select id="d_profile"><option value="multi" selected>多股并列密绕</option><option value="single">常规单层密绕</option></select></div>
-      <div><label>目标用途</label><select id="d_goal"><option value="stable" selected>稳定生产</option><option value="start">推荐起始试样</option><option value="limit">理论极限密绕</option></select></div>
-    </div>
-    <div class="row mt8"><button class="btn" onclick="coilCalcDense()">计算密绕</button><button class="btn-sm ghost" onclick="coilFillDense()">示例</button></div>
-    <div id="out_dense" class="mt8"></div>
   </div>
 
   <!-- Settings -->
@@ -581,7 +561,7 @@ async function braidCopy(){
 // ========== 绕丝/缆绳 ==========
 let coilCurrentText='';
 const coilSettingKeys=['s_rope_ratio','s_rope_od','s_coil_ratio','s_coil_od','s_rope_speed','s_dense_pitch'];
-const coilTabs=['rope','coil1','coil2','coil3','reverse','dense','settings'];
+const coilTabs=['rope','coil1','coil2','coil3','settings'];
 
 function coilShowTab(id,btn){
   coilTabs.forEach(x=>{const el=document.getElementById('coil-'+x);if(el)el.classList.add('hidden')});
@@ -604,7 +584,7 @@ function coilValidate(items){
 function coilRenderError(id,errors){if(!errors.length)return false;document.getElementById(id).innerHTML=`<div class="error-msg">请检查：${errors.join('、')}</div>`;return true}
 function coilSetOut(id,html,text){document.getElementById(id).innerHTML=html;coilCurrentText=text||html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()}
 function coilKpi(title,value,note=''){return `<div class="kpi"><div class="l">${title}</div><div class="v">${value}</div>${note?`<div class="l">${note}</div>`:''}</div>`}
-function coilLayerDenseP(n,wire,core,tight){const sD=getS('s_dense_pitch','1.000'),kT=tight==='soft'?1.035:(tight==='tight'?0.925:0.965),ratio=(n*wire)/(Math.PI*(core+wire)),gf=Math.max(0.94,Math.sqrt(Math.max(0,1-ratio*ratio)));return n*wire*kT*gf*sD}
+function coilLayerDenseP(n,wire,core,tight){const ratio=(n*wire)/(Math.PI*(core+wire));if(ratio>=1)return -1;const sD=getS('s_dense_pitch','1.000'),kT=tight==='soft'?1.035:(tight==='tight'?0.925:0.965),gf=Math.sqrt(1-ratio*ratio);return n*wire*kT*sD/(gf||1e-9)}
 function coilByPitch(coreD,wireD,n,pitch,len,tight,loss,onoff='ON'){
   if(onoff==='OFF')return{ratio:0,od:coreD,total2:0,per2:0,perRatio:0,pitch,active:false};
   const cRF=getS('s_coil_ratio','1.000'),cOF=getS('s_coil_od','1.000'),pathD=coreD+wireD,perR=Math.sqrt(1+Math.pow((Math.PI*pathD)/pitch,2))*tightMul(tight)*cRF,ratio=perR*n,od=(coreD+2*wireD)*tightOdMul(tight)*cOF,total2=ratio*len*pctLoss(loss),per2=n>0?total2/n:0;
@@ -618,7 +598,7 @@ function coilSummarize(title,layers,len,loss){
   const html=`<div class="grid2">${coilKpi('理论外径',`${od.toFixed(3)} mm`)}${coilKpi('总用丝比',`1 : ${totalRatio.toFixed(3)}`)}${coilKpi('总用丝(含损耗)',`${total2.toFixed(2)} m`)}</div>
     <div style="border-top:1px solid var(--sep);margin:10px 0"></div>
     ${active.map(x=>`<div style="font-weight:600;margin:8px 0 4px">[${x.name}] ${x.n}股 | ${x.dir} | 捻距 ${x.pitch.toFixed(4)} mm</div>
-      <div class="grid2">${coilKpi('单股用丝比',`1 : ${x.perRatio.toFixed(3)}`)}${coilKpi('每股建议用丝',`${x.per2.toFixed(2)} m`)}${coilKpi('推荐密绕捻距',`${x.denseP.toFixed(4)} mm`)}</div>`).join('')}`;
+      <div class="grid2">${coilKpi('单股用丝比',`1 : ${x.perRatio.toFixed(3)}`)}${coilKpi('每股建议用丝',`${x.per2.toFixed(2)} m`)}${coilKpi('密绕捻距',`${x.denseP.toFixed(4)} mm`)}${coilKpi('间隙绕捻距',`${(x.denseP+(x.gap||0)).toFixed(4)} mm`)}</div>`).join('')}`;
   return{html,text};
 }
 function coilCalcRope(){
@@ -636,7 +616,7 @@ function coilCalc1(){
   const errors=coilValidate([['c1_core','芯径>=0',v=>v>=0],['c1_wire','丝径>0',v=>v>0],['c1_n','股数为正整数',v=>v>0&&Number.isInteger(v)],['c1_pitch','捻距>0',v=>v>0],['c1_len','长度>0',v=>v>0],['c1_loss','损耗>=0',v=>v>=0]]);
   if(coilRenderError('out_c1',errors))return;
   const layer=coilByPitch(cnum('c1_core'),cnum('c1_wire'),cnum('c1_n'),cnum('c1_pitch'),cnum('c1_len'),cval('c1_tight'),cnum('c1_loss'),cval('c1_on'));
-  Object.assign(layer,{name:'单层',n:cnum('c1_n'),dir:cval('c1_dir'),denseP:coilLayerDenseP(cnum('c1_n'),cnum('c1_wire'),cnum('c1_core'),cval('c1_tight'))});
+  Object.assign(layer,{name:'单层',n:cnum('c1_n'),dir:cval('c1_dir'),denseP:coilLayerDenseP(cnum('c1_n'),cnum('c1_wire'),cnum('c1_core'),cval('c1_tight')),gap:cnum('c1_gap')||0});
   const out=coilSummarize('单层绕丝',[layer],cnum('c1_len'),cnum('c1_loss'));
   coilSetOut('out_c1',out.html,out.text);
 }
@@ -645,48 +625,96 @@ function coilCalc2(){
   if(coilRenderError('out_c2',errors))return;
   const len=cnum('c2_len'),loss=cnum('c2_loss'),tight=cval('c2_tight');
   const inner=coilByPitch(cnum('c2_core'),cnum('c2_w1'),cnum('c2_n1'),cnum('c2_p1'),len,tight,loss,cval('c2_on1'));
-  Object.assign(inner,{name:'内层',n:cnum('c2_n1'),dir:cval('c2_dir1'),denseP:coilLayerDenseP(cnum('c2_n1'),cnum('c2_w1'),cnum('c2_core'),tight)});
+  Object.assign(inner,{name:'内层',n:cnum('c2_n1'),dir:cval('c2_dir1'),denseP:coilLayerDenseP(cnum('c2_n1'),cnum('c2_w1'),cnum('c2_core'),tight),gap:cnum('c2_gap1')||0});
   const outerCore=nextCoreDia(cnum('c2_core'),[inner]);
   const outer=coilByPitch(outerCore,cnum('c2_w2'),cnum('c2_n2'),cnum('c2_p2'),len,tight,loss,cval('c2_on2'));
-  Object.assign(outer,{name:'外层',n:cnum('c2_n2'),dir:cval('c2_dir2'),denseP:coilLayerDenseP(cnum('c2_n2'),cnum('c2_w2'),outerCore,tight)});
+  Object.assign(outer,{name:'外层',n:cnum('c2_n2'),dir:cval('c2_dir2'),denseP:coilLayerDenseP(cnum('c2_n2'),cnum('c2_w2'),outerCore,tight),gap:cnum('c2_gap2')||0});
   const out=coilSummarize('双层绕丝',[inner,outer],len,loss);
   coilSetOut('out_c2',out.html,out.text);
 }
 function initCoil3(){
   const presets=[['内层',0.04,6,0.8566,'Z','ON'],['中层',0.04,6,0.6700,'Z','ON'],['外层',0.03,6,6.0000,'S','ON']];
-  document.getElementById('c3_layers').innerHTML=presets.map((p,i)=>{const n=i+1;return `<div style="grid-column:1/-1;border-top:1px solid var(--sep);margin-top:4px"></div><div><label>${p[0]}丝径</label><input id="c3_w${n}" value="${p[1]}" type="number" step="0.001"></div><div><label>${p[0]}股数</label><input id="c3_n${n}" value="${p[2]}" type="number" step="1"></div><div><label>${p[0]}捻距</label><input id="c3_p${n}" value="${p[3]}" type="number" step="0.0001"></div><div><label>${p[0]}捻向</label><select id="c3_dir${n}"><option value="Z"${p[4]==='Z'?' selected':''}>Z捻</option><option value="S"${p[4]==='S'?' selected':''}>S捻</option></select></div><div><label>${p[0]}开关</label><select id="c3_on${n}"><option value="ON"${p[5]==='ON'?' selected':''}>ON</option><option value="OFF">OFF</option></select></div>`}).join('')}
+  document.getElementById('c3_layers').innerHTML=presets.map((p,i)=>{const n=i+1;return `<div style="grid-column:1/-1;border-top:1px solid var(--sep);margin-top:4px"></div><div><label>${p[0]}丝径</label><input id="c3_w${n}" value="${p[1]}" type="number" step="0.001"></div><div><label>${p[0]}股数</label><input id="c3_n${n}" value="${p[2]}" type="number" step="1"></div><div><label>${p[0]}捻距</label><input id="c3_p${n}" value="${p[3]}" type="number" step="0.0001"></div><div><label>${p[0]}捻向</label><select id="c3_dir${n}"><option value="Z"${p[4]==='Z'?' selected':''}>Z捻</option><option value="S"${p[4]==='S'?' selected':''}>S捻</option></select></div><div><label>${p[0]}开关</label><select id="c3_on${n}"><option value="ON"${p[5]==='ON'?' selected':''}>ON</option><option value="OFF">OFF</option></select></div><div><label>${p[0]}间隙</label><input id="c3_gap${n}" value="0" type="number" step="0.001"></div><div><label>${p[0]}角度</label><input id="c3_angle${n}" value="" type="number" step="0.1" placeholder="自动" oninput="c3PitchFromAngle(${n})"></div>`}).join('')}
 function coilCalc3(){
   const ids=['1','2','3'],rules=[['c3_core','芯径>=0',v=>v>=0],['c3_len','长度>0',v=>v>0],['c3_loss','损耗>=0',v=>v>=0]];
   ids.forEach(i=>rules.push([`c3_w${i}`,`第${i}层丝径>0`,v=>v>0],[`c3_n${i}`,`第${i}层股数为正整数`,v=>v>0&&Number.isInteger(v)],[`c3_p${i}`,`第${i}层捻距>0`,v=>v>0]));
   const errors=coilValidate(rules);if(coilRenderError('out_c3',errors))return;
   const len=cnum('c3_len'),loss=cnum('c3_loss'),tight=cval('c3_tight');let core=cnum('c3_core');
-  const layers=ids.map((i,idx)=>{const layer=coilByPitch(core,cnum(`c3_w${i}`),cnum(`c3_n${i}`),cnum(`c3_p${i}`),len,tight,loss,cval(`c3_on${i}`));Object.assign(layer,{name:['内层','中层','外层'][idx],n:cnum(`c3_n${i}`),dir:cval(`c3_dir${i}`),denseP:coilLayerDenseP(cnum(`c3_n${i}`),cnum(`c3_w${i}`),core,tight)});core=layer.active?layer.od:core;return layer});
+  const layers=ids.map((i,idx)=>{const layer=coilByPitch(core,cnum(`c3_w${i}`),cnum(`c3_n${i}`),cnum(`c3_p${i}`),len,tight,loss,cval(`c3_on${i}`));Object.assign(layer,{name:['内层','中层','外层'][idx],n:cnum(`c3_n${i}`),dir:cval(`c3_dir${i}`),denseP:coilLayerDenseP(cnum(`c3_n${i}`),cnum(`c3_w${i}`),core,tight),gap:cnum(`c3_gap${i}`)||0});core=layer.active?layer.od:core;return layer});
   const out=coilSummarize('三层绕丝',layers,len,loss);coilSetOut('out_c3',out.html,out.text);
 }
-function coilCalcRev(){
-  const errors=coilValidate([['v_od','目标外径>0',v=>v>0],['v_core','芯径>=0',v=>v>=0],['v_len','长度>0',v=>v>0],['v_loss','损耗>=0',v=>v>=0]]);
-  if(coilRenderError('out_v',errors))return;
-  const type=cval('v_type'),target=cnum('v_od'),core=cnum('v_core'),tight=cval('v_tight'),odFix=type==='rope77'?getS('s_rope_od','1.000'):getS('s_coil_od','1.000'),adjusted=target/tightOdMul(tight)/odFix;
-  let html='',text='';
-  if(type==='rope77'){const d=adjusted/9;html=`<div class="grid2">${coilKpi('建议单丝直径',`${d.toFixed(4)} mm`)}${coilKpi('目标外径',`${target.toFixed(3)} mm`)}</div>`;text=`[外径反推-7x7]\n目标外径: ${target.toFixed(3)}mm\n建议单丝直径: ${d.toFixed(4)}mm`}
-  else{const layers=type==='coil1'?1:(type==='coil2'?2:3),wire=Math.max(0,(adjusted-core)/(2*layers));html=`<div class="grid2">${coilKpi('建议每层丝径',`${wire.toFixed(4)} mm`)}${coilKpi('层数',`${layers}`)}${coilKpi('目标外径',`${target.toFixed(3)} mm`)}</div>`;text=`[外径反推]\n目标外径: ${target.toFixed(3)}mm\n芯径: ${core.toFixed(3)}mm\n建议丝径: ${wire.toFixed(4)}mm`}
-  coilSetOut('out_v',html,text);
+
+function ropeRevWire(){
+  const od=parseFloat(document.getElementById('r_od_target').value);
+  if(!od||od<=0)return;
+  const tight=cval('r_tight'),odFix=getS('s_rope_od','1.000');
+  document.getElementById('r_d').value=(od/tightOdMul(tight)/odFix/9).toFixed(4);
+  coilCalcRope();
 }
-function coilCalcDense(){
-  const errors=coilValidate([['d_core','芯径>=0',v=>v>=0],['d_wire','丝径>0',v=>v>0],['d_n','股数为正整数',v=>v>0&&Number.isInteger(v)],['d_len','长度>0',v=>v>0],['d_loss','损耗>=0',v=>v>=0]]);
-  if(coilRenderError('out_dense',errors))return;
-  const core=cnum('d_core'),wire=cnum('d_wire'),n=cnum('d_n'),len=cnum('d_len'),mode=cval('d_mode'),loss=cnum('d_loss'),goal=cval('d_goal'),profile=cval('d_profile'),denseFix=getS('s_dense_pitch','1.000');
-  let pUse,note;
-  if(profile==='multi'){const geom=Math.max(0.94,Math.sqrt(Math.max(0,1-Math.pow((n*wire)/(Math.PI*(core+wire)),2)))),pStart=n*wire*1.02*geom*denseFix,pStable=n*wire*(mode==='soft'?1.04:(mode==='tight'?0.91:0.96))*geom*denseFix,pLimit=n*wire*0.89*geom*denseFix;pUse=goal==='limit'?pLimit:(goal==='start'?pStart:pStable);note='多股并列密绕 - 几何修正版'}
-  else{pUse=wire*(mode==='soft'?1.04:(mode==='tight'?0.90:0.96))*denseFix;note='常规单层螺旋密绕'}
-  const ratio=n*Math.sqrt(1+Math.pow(Math.PI*(core+wire)/pUse,2)),total2=ratio*len*pctLoss(loss),per2=total2/n,perRatio=ratio/n,od=(core+2*wire)*tightOdMul(mode)*getS('s_coil_od','1.000');
-  const html=`<div class="grid2">${coilKpi('推荐密绕捻距',`${pUse.toFixed(4)} mm`)}${coilKpi('理论外径',`${od.toFixed(3)} mm`)}${coilKpi('单股用丝比',`1:${perRatio.toFixed(3)}`)}${coilKpi('总用丝(含损耗)',`${total2.toFixed(2)} m`)}${coilKpi('每股建议',`${per2.toFixed(2)} m`)}</div><p class="muted">${note}</p>`;
-  coilSetOut('out_dense',html);
+function coil1RevWire(){
+  const od=parseFloat(document.getElementById('c1_od_target').value);
+  if(!od||od<=0)return;
+  const core=cnum('c1_core'),tight=cval('c1_tight'),odFix=getS('s_coil_od','1.000');
+  document.getElementById('c1_wire').value=Math.max(0,(od/tightOdMul(tight)/odFix-core)/2).toFixed(4);
+  coilCalc1();
 }
-function coilFillDense(){document.getElementById('d_core').value=0.12;document.getElementById('d_wire').value=0.04;document.getElementById('d_n').value=6;document.getElementById('d_len').value=5;document.getElementById('d_mode').value='normal';document.getElementById('d_profile').value='multi';document.getElementById('d_goal').value='stable';coilCalcDense()}
+function coil2RevWire(){
+  const od=parseFloat(document.getElementById('c2_od_target').value);
+  if(!od||od<=0)return;
+  const core=cnum('c2_core'),tight=cval('c2_tight'),odFix=getS('s_coil_od','1.000');
+  const wire=Math.max(0,(od/tightOdMul(tight)/odFix-core)/4).toFixed(4);
+  document.getElementById('c2_w1').value=wire;
+  document.getElementById('c2_w2').value=wire;
+  coilCalc2();
+}
+function coil3RevWire(){
+  const od=parseFloat(document.getElementById('c3_od_target').value);
+  if(!od||od<=0)return;
+  const core=cnum('c3_core'),tight=cval('c3_tight'),odFix=getS('s_coil_od','1.000');
+  const wire=Math.max(0,(od/tightOdMul(tight)/odFix-core)/6).toFixed(4);
+  ['1','2','3'].forEach(i=>{const el=document.getElementById('c3_w'+i);if(el)el.value=wire});
+  coilCalc3();
+}
+function angleToPitch(angle,core,wire){
+  if(!angle||angle<=0||angle>=90)return 0;
+  return Math.PI*(core+wire)/Math.tan(angle*Math.PI/180);
+}
+function pitchToAngle(pitch,core,wire){
+  if(!pitch||pitch<=0)return 0;
+  return Math.atan(Math.PI*(core+wire)/pitch)*180/Math.PI;
+}
+function coil1PitchFromAngle(){
+  const a=parseFloat(document.getElementById('c1_angle').value);
+  if(!a||a<=0||a>=90)return;
+  document.getElementById('c1_pitch').value=angleToPitch(a,cnum('c1_core'),cnum('c1_wire')).toFixed(4);
+  coilCalc1();
+}
+function coil1AngleFromPitch(){
+  const p=parseFloat(document.getElementById('c1_pitch').value);
+  if(!p||p<=0)return;
+  document.getElementById('c1_angle').value=pitchToAngle(p,cnum('c1_core'),cnum('c1_wire')).toFixed(2);
+}
+function coil2PitchFromAngle(){
+  const a=parseFloat(document.getElementById('c2_angle').value);
+  if(!a||a<=0||a>=90)return;
+  document.getElementById('c2_p1').value=angleToPitch(a,cnum('c2_core'),cnum('c2_w1')).toFixed(4);
+  coilCalc2();
+}
+function coil2AngleFromPitch(){
+  const p=parseFloat(document.getElementById('c2_p1').value);
+  if(!p||p<=0)return;
+  document.getElementById('c2_angle').value=pitchToAngle(p,cnum('c2_core'),cnum('c2_w1')).toFixed(2);
+}
+function c3PitchFromAngle(n){
+  const a=parseFloat(document.getElementById('c3_angle'+n).value);
+  if(!a||a<=0||a>=90)return;
+  const core=cnum('c3_core'),wire=cnum('c3_w'+n);
+  document.getElementById('c3_p'+n).value=angleToPitch(a,core,wire).toFixed(4);
+  coilCalc3();
+}
 function coilSaveSettings(){coilSettingKeys.forEach(id=>localStorage.setItem(id,document.getElementById(id).value));alert('已保存')}
 function coilLoadSettings(){coilSettingKeys.forEach(id=>{const s=localStorage.getItem(id);if(s!==null)document.getElementById(id).value=s})}
-function coilResetSettings(){if(!confirm('恢复默认？'))return;coilSettingKeys.forEach(k=>{localStorage.setItem(k,'1.000');document.getElementById(k).value='1.000'});alert('已恢复')}
+function coilResetSettings(){if(!confirm('恢复默认？'))return;const defs={s_rope_ratio:'1.000',s_rope_od:'1.000',s_coil_ratio:'1.000',s_coil_od:'1.000',s_rope_speed:'1.000',s_dense_pitch:'1.000'};Object.entries(defs).forEach(([k,v])=>{localStorage.setItem(k,v);document.getElementById(k).value=v});alert('已恢复')}
 function coilExportSettings(){const data=Object.fromEntries(coilSettingKeys.map(k=>[k,document.getElementById(k).value]));const b=new Blob([JSON.stringify(data,null,2)],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='校准参数.json';a.click()}
 function coilImportSettings(){const raw=prompt('粘贴导出的校准 JSON');if(!raw)return;try{const data=JSON.parse(raw);coilSettingKeys.forEach(k=>{if(data[k]!==undefined){localStorage.setItem(k,String(data[k]));document.getElementById(k).value=String(data[k])}});alert('已导入')}catch(e){alert('JSON 格式不正确')}}
 function coilCopyResult(){if(!coilCurrentText){alert('请先计算');return}navigator.clipboard.writeText(coilCurrentText);alert('已复制')}
