@@ -424,13 +424,32 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>总重量 (g)</label><input id="metalWeight" type="number" step="0.1" value="1000" oninput="weightCalc()"></div>
       <div><label>分丝/合股数</label><input id="metalStrands" type="number" step="1" value="1" min="1" oninput="weightCalc()"></div>
     </div>
-    <div id="fiberSection" class="grid2 hidden">
-      <div><label>纤维材质</label><select id="fiberMaterial"><option>UHMWPE</option><option>氨纶</option><option>涤纶</option><option>尼龙</option><option>其他</option></select></div>
+    <div <div id="fiberSection" class="hidden">
+  <div class="grid2">
+<div><label>纤维材质</label><select id="fiberMaterial"><option>UHMWPE</option><option>氨纶</option><option>涤纶</option><option>尼龙</option><option>其他</option></select></div>
       <div><label>规格单位</label><select id="fiberUnit" onchange="weightCalc()"><option value="D">Denier (D)</option><option value="Tex">Tex</option><option value="dtex">dtex</option></select></div>
       <div><label>规格数值</label><input id="fiberValue" type="number" step="1" value="100" oninput="weightCalc()"></div>
       <div><label>卷轴总重量 (g)</label><input id="fiberWeight" type="number" step="0.1" value="1000" oninput="weightCalc()"></div>
       <div><label>分丝/合股数</label><input id="fiberStrands" type="number" step="1" value="1" min="1" oninput="weightCalc()"></div>
+  </div>
+    <div class="mt8" style="font-size:11px;cursor:pointer;user-select:none;color:var(--blue)" onclick="document.getElementById('sutureRef').classList.toggle('hidden')">📋 医用缝线规格对照 ▸</div>
+    <div id="sutureRef" class="hidden" style="margin-top:4px;overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:10px;text-align:center">
+        <tr style="background:#f0f0f5;font-weight:600"><td style="padding:3px 4px">规格</td><td style="padding:3px 4px">USP</td><td style="padding:3px 4px">线径 mm</td><td style="padding:3px 4px">规格</td><td style="padding:3px 4px">USP</td><td style="padding:3px 4px">线径 mm</td></tr>
+        <tr><td>0.01</td><td>12-0</td><td>0.001-0.009</td><td>3</td><td>2-0</td><td>0.300-0.349</td></tr>
+        <tr style="background:#fafafa"><td>0.1</td><td>11-0</td><td>0.010-0.019</td><td>3.5</td><td>0</td><td>0.350-0.399</td></tr>
+        <tr><td>0.2</td><td>10-0</td><td>0.020-0.029</td><td>4</td><td>1</td><td>0.400-0.499</td></tr>
+        <tr style="background:#fafafa"><td>0.3</td><td>9-0</td><td>0.030-0.039</td><td>5</td><td>2</td><td>0.500-0.599</td></tr>
+        <tr><td>0.4</td><td>8-0</td><td>0.040-0.049</td><td>6</td><td>3/4</td><td>0.600-0.699</td></tr>
+        <tr style="background:#fafafa"><td>0.5</td><td>7-0</td><td>0.050-0.069</td><td>7</td><td>5</td><td>0.700-0.799</td></tr>
+        <tr><td>0.7</td><td>6-0</td><td>0.070-0.099</td><td>8</td><td>6</td><td>0.800-0.899</td></tr>
+        <tr style="background:#fafafa"><td>1</td><td>5-0</td><td>0.100-0.149</td><td>9</td><td>7</td><td>0.900-0.999</td></tr>
+        <tr><td>1.5</td><td>4-0</td><td>0.150-0.199</td><td>10</td><td>8</td><td>1.000-1.099</td></tr>
+        <tr style="background:#fafafa"><td>2</td><td>3-0</td><td>0.200-0.249</td><td>11</td><td>9</td><td>1.100-1.199</td></tr>
+        <tr><td>2.5</td><td>2-0/T</td><td>0.250-0.299</td><td>12</td><td>10</td><td>1.200-1.299</td></tr>
+      </table>
     </div>
+</div>
     <div id="strengthSection" class="grid2 hidden">
       <div><label>丝型</label><select id="strType" onchange="strengthToggleFields();strengthCalc()">
         <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
