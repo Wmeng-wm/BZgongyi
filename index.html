@@ -531,6 +531,34 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
   </div>
 </div>
 
+<!-- ====== 产线校准 ====== -->
+<div class="page" id="page-calib">
+  <div class="card">
+    <div class="muted mb8">分丝机计米倍率校准 — 实际出丝与设定不符时重新计算倍率</div>
+    <div class="grid2">
+      <div><label>设定米数 (m)</label><input id="cb_setLen" type="number" step="0.01" value="2"></div>
+      <div><label>实际测量米数 (m)</label><input id="cb_realLen" type="number" step="0.01" value="2.33"></div>
+      <div><label>当前计米倍率</label><input id="cb_curRatio" type="number" step="0.1" value="16.3"></div>
+    </div>
+    <button class="btn mt8" onclick="calibRatio()">计算新倍率</button>
+    <div class="kpi best mt8 hidden" id="cb_result" style="margin-top:10px">
+      <div class="l">新计米倍率</div><div class="v" id="cb_newRatio">-</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="muted mb8">每转移动量校准 — 实际目数与设定不符时调整移动量</div>
+    <div class="grid2">
+      <div><label>设定移动量 (μm)</label><input id="cb_setDist" type="number" step="1" value="5600"></div>
+      <div><label>设定目数</label><input id="cb_setPPI" type="number" step="1" value="64"></div>
+      <div><label>实际测得目数</label><input id="cb_realPPI" type="number" step="1" value="71"></div>
+    </div>
+    <button class="btn mt8" onclick="calibDist()">计算新移动量</button>
+    <div class="kpi best mt8 hidden" id="cb_result2" style="margin-top:10px">
+      <div class="l">调整后移动量</div><div class="v" id="cb_newDist">-</div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <!-- Tab Bar -->
@@ -555,11 +583,15 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
     <span>齿轮</span>
   </button>
+  <button class="tab-btn" data-page="calib" onclick="switchPage('calib')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span>校准</span>
+  </button>
 </div>
 
 <script>
 // ========== Tab Navigation ==========
-const pageTitles = {braid:'编织计算',coil:'绕丝/缆绳',single:'单锭机',weight:'克重转换',gear:'齿轮反查'};
+const pageTitles = {braid:'编织计算',coil:'绕丝/缆绳',single:'单锭机',weight:'克重转换',gear:'齿轮反查',calib:'产线校准'};
 function switchPage(name){
   document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none'});
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -2057,6 +2089,21 @@ function gearSearch(){
   document.getElementById('results').innerHTML=html;
 }
 
+// ========== 产线校准 ==========
+function calibRatio(){
+  const a=parseFloat(document.getElementById('cb_setLen').value),b=parseFloat(document.getElementById('cb_realLen').value),c=parseFloat(document.getElementById('cb_curRatio').value);
+  if(!a||!b||!c||a<=0)return;
+  const r=b/a*c;
+  document.getElementById('cb_newRatio').textContent=r.toFixed(4);
+  document.getElementById('cb_result').classList.remove('hidden');
+}
+function calibDist(){
+  const a=parseFloat(document.getElementById('cb_setDist').value),b=parseFloat(document.getElementById('cb_setPPI').value),c=parseFloat(document.getElementById('cb_realPPI').value);
+  if(!a||!b||!c||c<=0)return;
+  const r=a*b/c;
+  document.getElementById('cb_newDist').textContent=Math.round(r);
+  document.getElementById('cb_result2').classList.remove('hidden');
+}
 // ========== Init ==========
 window.addEventListener('DOMContentLoaded',()=>{
   initCoil3();
