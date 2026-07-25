@@ -408,6 +408,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
     <div class="segment" id="weightMode">
       <button class="active" onclick="weightSwitchTab('metal')">金属丝</button>
       <button onclick="weightSwitchTab('fiber')">纤维丝</button>
+      <button onclick="weightSwitchTab('strength')">强度换算</button>
     </div>
     <div id="metalSection" class="grid2">
       <div><label>材质</label><select id="material" onchange="weightCalc()">
@@ -430,6 +431,15 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>卷轴总重量 (g)</label><input id="fiberWeight" type="number" step="0.1" value="1000" oninput="weightCalc()"></div>
       <div><label>分丝/合股数</label><input id="fiberStrands" type="number" step="1" value="1" min="1" oninput="weightCalc()"></div>
     </div>
+    <div id="strengthSection" class="grid2 hidden">
+      <div><label>丝型</label><select id="strType" onchange="strengthToggleFields();strengthCalc()">
+        <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
+      </select></div>
+      <div id="strRound"><label>圆丝直径 d (mm)</label><input id="strDia" type="number" step="0.001" value="0.05" oninput="strengthCalc()"></div>
+      <div id="strFlatW" class="hidden"><label>扁丝宽 b (mm)</label><input id="strWidth" type="number" step="0.001" value="0.05" oninput="strengthCalc()"></div>
+      <div id="strFlatH" class="hidden"><label>扁丝厚 h (mm)</label><input id="strThick" type="number" step="0.001" value="0.127" oninput="strengthCalc()"></div>
+      <div><label>抗拉强度 (MPa)</label><input id="strMPa" type="number" step="1" value="500" oninput="strengthCalc()"></div>
+    </div>
   </div>
   <div class="card">
     <div class="grid2">
@@ -438,6 +448,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div class="kpi"><div class="l">每米重量</div><div class="v" id="gpmOut">-</div><div class="l">g/m</div></div>
       <div class="kpi best"><div class="l">总长度</div><div class="v" id="lengthOut">-</div><div class="l">m</div></div>
       <div class="kpi best"><div class="l">单股可用</div><div class="v" id="strandLengthOut">-</div><div class="l">m</div></div>
+      <div class="kpi best" id="strengthKpi" style="display:none"><div class="l">断裂力</div><div class="v" id="strengthOut">-</div><div class="l">N</div></div>
     </div>
   </div>
 </div>
@@ -849,11 +860,19 @@ function weightSwitchTab(tab){
   const btns=document.querySelectorAll('#weightMode button');
   btns[0].classList.toggle('active',tab==='metal');
   btns[1].classList.toggle('active',tab==='fiber');
+  btns[2].classList.toggle('active',tab==='strength');
   document.getElementById('metalSection').classList.toggle('hidden',tab!=='metal');
   document.getElementById('fiberSection').classList.toggle('hidden',tab!=='fiber');
-  document.getElementById('densityOut').parentElement.style.display=tab==='metal'?'':'none';
-  document.getElementById('areaOut').parentElement.style.display=tab==='metal'?'':'none';
-  weightCalc();
+  document.getElementById('strengthSection').classList.toggle('hidden',tab!=='strength');
+  const isStr=tab==='strength';
+  document.getElementById('densityOut').parentElement.style.display=isStr?'none':(tab==='metal'?'':'none');
+  document.getElementById('areaOut').parentElement.style.display=isStr?'none':(tab==='metal'?'':'none');
+  document.getElementById('gpmOut').parentElement.style.display=isStr?'none':'';
+  document.getElementById('lengthOut').parentElement.style.display=isStr?'none':'';
+  document.getElementById('strandLengthOut').parentElement.style.display=isStr?'none':'';
+  document.getElementById('strengthKpi').style.display=isStr?'':'none';
+  if(isStr)strengthCalc();else weightCalc();
+  if(tab==='metal')weightToggleFields();
 }
 function weightToggleFields(){
   if(weightTab!=='metal')return;
@@ -861,6 +880,20 @@ function weightToggleFields(){
   document.getElementById('roundField').classList.toggle('hidden',t!=='圆丝');
   document.getElementById('flatWidthField').classList.toggle('hidden',t!=='扁丝');
   document.getElementById('flatThickField').classList.toggle('hidden',t!=='扁丝');
+}
+function strengthToggleFields(){
+  const t=document.getElementById('strType').value;
+  document.getElementById('strRound').classList.toggle('hidden',t!=='圆丝');
+  document.getElementById('strFlatW').classList.toggle('hidden',t!=='扁丝');
+  document.getElementById('strFlatH').classList.toggle('hidden',t!=='扁丝');
+}
+function strengthCalc(){
+  const t=document.getElementById('strType').value,mpa=parseFloat(document.getElementById('strMPa').value||0);
+  let area=0;
+  if(t==='圆丝'){const d=parseFloat(document.getElementById('strDia').value||0);area=Math.PI*Math.pow(d/2,2)}
+  else{const w=parseFloat(document.getElementById('strWidth').value||0),h=parseFloat(document.getElementById('strThick').value||0);area=w*h}
+  const n=mpa*area;
+  document.getElementById('strengthOut').textContent=n>0?n.toFixed(4):'-';
 }
 function weightCalc(){
   let gpm=0,length=0,sl=0;
