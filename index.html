@@ -1015,7 +1015,7 @@ function dualCalc(){
   const totalD=ref.N*ref.D*Math.pow(ref.ppi/ppi,0.212);
   const D=totalD/N*rho/0.97;
   const Dround=Math.round(D);
-  const area=(D/9000)/rho/1000;
+  const area=D/9000/rho;
   const d_yarn=Math.sqrt(4*area/Math.PI);
   const angle=Math.atan(Math.PI*g.od*ppi/25.4)*180/Math.PI;
   const pitch=25.4/ppi;
