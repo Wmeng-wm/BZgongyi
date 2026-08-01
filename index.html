@@ -366,6 +366,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
     <div class="segment" id="sutureMode">
       <button class="active" onclick="sutureSwitch('single')">单锭机</button>
       <button onclick="sutureSwitch('dual')">双锭机</button>
+      <button onclick="sutureSwitch('d2d')">D→直径</button>
     </div>
   </div>
 
@@ -462,6 +463,37 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       </div>
     </div>
   </div>
+
+  <!-- D→直径 -->
+  <div id="suture-d2d" class="hidden">
+    <div class="card">
+      <div class="muted mb8">输入D数（旦尼尔），计算对应线材直径</div>
+      <div class="grid2">
+        <div><label>材料</label><select id="d2d_material" onchange="d2dCalc()">
+          <option value="0.97" selected>UHMWPE 超高分子聚乙烯</option>
+          <option value="1.38">PET 涤纶</option>
+          <option value="1.14">PA 尼龙</option>
+          <option value="0.91">PP 聚丙烯</option>
+          <option value="1.44">芳纶 Kevlar</option>
+          <option value="2.18">PTFE 铁氟龙</option>
+          <option value="1.80">碳纤维</option>
+          <option value="2.54">玻璃纤维</option>
+          
+        </select></div>
+        <div><label>旦尼尔 D</label><input id="d2d_denier" type="number" value="110" step="1" oninput="d2dFromD()"></div>
+        <div><label>分特 dtex</label><input id="d2d_dtex" type="number" value="" step="1" oninput="d2dFromDtex()" placeholder="自动换算"></div>
+        <div><label>Tex</label><input id="d2d_tex" type="number" value="" step="1" oninput="d2dFromTex()" placeholder="自动换算"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="grid2">
+        <div class="kpi best"><div class="l">线材直径</div><div class="v" id="d2d_dia">-</div><div class="l">mm</div></div>
+        <div class="kpi"><div class="l">截面积</div><div class="v" id="d2d_area">-</div><div class="l">mm²</div></div>
+        <div class="kpi"><div class="l">每米克重</div><div class="v" id="d2d_gm">-</div><div class="l">g/m</div></div>
+        <div class="kpi"><div class="l">每千克长度</div><div class="v" id="d2d_mkg">-</div><div class="l">m</div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ====== 克重转换 ====== -->
@@ -513,6 +545,8 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
     </div>
 </div>
     <div id="strengthSection" class="grid2 hidden">
+      <div style="grid-column:1/-1;font-weight:600;font-size:14px;margin-bottom:2px">💪 强度换算</div>
+      <div style="grid-column:1/-1" class="muted mb8" style="font-size:11px">输入材料截面积和抗拉强度 MPa，计算断裂力 N</div>
       <div><label>丝型</label><select id="strType" onchange="strengthToggleFields();strengthCalc()">
         <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
       </select></div>
@@ -531,6 +565,14 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div class="kpi best"><div class="l">单股可用</div><div class="v" id="strandLengthOut">-</div><div class="l">m</div></div>
       <div class="kpi best" id="strengthKpi" style="display:none"><div class="l">断裂力</div><div class="v" id="strengthOut">-</div><div class="l">N</div></div>
     </div>
+  </div>
+  <div class="card" id="torqueCard" style="display:none">
+    <div style="font-weight:600;font-size:14px;margin-bottom:6px">⚖️ 克重→张力</div>
+    <div class="muted mb8" style="font-size:11px">张力传感器读数 g → 牛顿 N</div>
+    <div class="grid2">
+      <div><label>张力 (g)</label><input id="tq_weight" type="number" value="100" step="1" oninput="torqueCalc()"></div>
+    </div>
+    <div class="kpi best mt8"><div class="l">张力</div><div class="v" id="tq_force">-</div><div class="l">N</div></div>
   </div>
 </div>
 
@@ -1002,7 +1044,55 @@ function dualRef(gauge,N,ppi){
 function sutureSwitch(mode){
   document.getElementById('suture-single').classList.toggle('hidden',mode!=='single');
   document.getElementById('suture-dual').classList.toggle('hidden',mode!=='dual');
-  document.querySelectorAll('#sutureMode button').forEach((b,i)=>b.classList.toggle('active',(i===0)===(mode==='single')));
+  document.getElementById('suture-d2d').classList.toggle('hidden',mode!=='d2d');
+  document.querySelectorAll('#sutureMode button').forEach((b,i)=>{const m=['single','dual','d2d'];b.classList.toggle('active',m[i]===mode);});
+}
+function d2dCalc(){
+  const D=parseFloat(document.getElementById('d2d_denier').value)||0;
+  const rho=parseFloat(document.getElementById('d2d_material').value);
+  if(D<=0)return;
+  const area=D/9000/rho;
+  const dia=Math.sqrt(4*area/Math.PI);
+  const gm=D/9000;
+  document.getElementById('d2d_dia').textContent=dia.toFixed(4);
+  document.getElementById('d2d_area').textContent=area.toFixed(5);
+  document.getElementById('d2d_gm').textContent=gm.toFixed(5);
+  document.getElementById('d2d_mkg').textContent=Math.round(1000/gm);
+}
+function d2dCalc(){
+  const D=parseFloat(document.getElementById('d2d_denier').value)||0;
+  const rho=parseFloat(document.getElementById('d2d_material').value);
+  if(D<=0)return;
+  const area=D/9000/rho;
+  const dia=Math.sqrt(4*area/Math.PI);
+  const gm=D/9000;
+  document.getElementById('d2d_dia').textContent=dia.toFixed(4);
+  document.getElementById('d2d_area').textContent=area.toFixed(5);
+  document.getElementById('d2d_gm').textContent=gm.toFixed(5);
+  document.getElementById('d2d_mkg').textContent=Math.round(1000/gm);
+}
+function d2dFromD(){
+  const D=parseFloat(document.getElementById('d2d_denier').value)||0;
+  if(D<=0)return;
+  document.getElementById('d2d_dtex').value=(D*1.111).toFixed(1);
+  document.getElementById('d2d_tex').value=(D/9).toFixed(2);
+  d2dCalc();
+}
+function d2dFromDtex(){
+  const dt=parseFloat(document.getElementById('d2d_dtex').value)||0;
+  if(dt<=0)return;
+  const D=dt/1.111;
+  document.getElementById('d2d_denier').value=Math.round(D);
+  document.getElementById('d2d_tex').value=(D/9).toFixed(2);
+  d2dCalc();
+}
+function d2dFromTex(){
+  const tx=parseFloat(document.getElementById('d2d_tex').value)||0;
+  if(tx<=0)return;
+  const D=tx*9;
+  document.getElementById('d2d_denier').value=Math.round(D);
+  document.getElementById('d2d_dtex').value=(D*1.111).toFixed(1);
+  d2dCalc();
 }
 function dualCalc(){
   const gauge=document.getElementById('du_gauge').value;
@@ -1026,6 +1116,11 @@ function dualCalc(){
   document.getElementById('du_outAngle').textContent=angle.toFixed(1);
   document.getElementById('du_outPitch').textContent=pitch.toFixed(3);
 }
+function torqueCalc(){
+  const w=parseFloat(document.getElementById('tq_weight').value)||0;
+  if(w<=0)return;
+  document.getElementById('tq_force').textContent=(w*9.81/1000).toFixed(4);
+}
 // ========== 克重转换 ==========
 let weightTab='metal';
 function weightSwitchTab(tab){
@@ -1037,6 +1132,7 @@ function weightSwitchTab(tab){
   document.getElementById('metalSection').classList.toggle('hidden',tab!=='metal');
   document.getElementById('fiberSection').classList.toggle('hidden',tab!=='fiber');
   document.getElementById('strengthSection').classList.toggle('hidden',tab!=='strength');
+  document.getElementById('torqueCard').style.display=tab==='strength'?'':'none';
   const isStr=tab==='strength';
   document.getElementById('densityOut').parentElement.style.display=isStr?'none':(tab==='metal'?'':'none');
   document.getElementById('areaOut').parentElement.style.display=isStr?'none':(tab==='metal'?'':'none');
