@@ -360,44 +360,106 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
   </div>
 </div>
 
-<!-- ====== 单锭机 ====== -->
+<!-- ====== 缝合线 ====== -->
 <div class="page" id="page-single">
   <div class="card">
-    <div class="segment" id="singleMode">
-      <button class="active" onclick="singleSetMode('W')">求宽度 W</button>
-      <button onclick="singleSetMode('D')">求旦尼尔 D</button>
-      <button onclick="singleSetMode('P')">求节距 P</button>
+    <div class="segment" id="sutureMode">
+      <button class="active" onclick="sutureSwitch('single')">单锭机</button>
+      <button onclick="sutureSwitch('dual')">双锭机</button>
     </div>
-    <div class="grid2">
-      <div style="grid-column:1/-1"><label>纤维材料库</label>
-        <select id="matType" onchange="singleUpdateK()">
-          <option value="0.01420">UHMWPE (超高分子量聚乙烯)</option>
-          <option value="0.01140">芳纶 (Kevlar)</option>
-          <option value="0.01189">PET (聚酯)</option>
-          <option value="0.01250">PA (尼龙)</option>
-          <option value="0.01480">PP (聚丙烯)</option>
-          <option value="0.00880">PTFE (铁氟龙)</option>
-          <option value="0.01020">碳纤维</option>
-          <option value="0.00850">玻璃纤维</option>
-          <option value="custom">自定义</option>
-        </select>
-      </div>
-      <div><label>锭数 N</label><input id="N" type="number" value="17"></div>
-      <div><label>结构</label><select id="singleCraft"><option value="1x1">1x1</option><option value="1x2" selected>1x2</option><option value="2x2">2x2</option></select></div>
-      <div><label>材料系数 k</label><input id="k" type="number" value="0.01420" step="0.00001"></div>
-      <div><label>经验修正 C</label><input id="C" type="number" value="0.258" step="0.001"></div>
-      <div><label>宽度 W (mm)</label><input id="W" type="number" value="3.2" step="0.1"></div>
-      <div><label>旦尼尔 D (Den)</label><input id="D" type="number" value="440" step="10"></div>
-      <div style="grid-column:1/-1"><label>节距 P (mm)</label><input id="P" type="number" value="17" step="0.1"></div>
-    </div>
-    <button class="btn mt8" onclick="singleRunCalc()">计算</button>
   </div>
-  <div class="card">
-    <div class="grid1">
-      <div class="kpi"><div class="l">输出宽度</div><div class="v" id="resW">-</div></div>
-      <div class="kpi"><div class="l">所需旦尼尔</div><div class="v" id="resD">-</div></div>
-      <div class="kpi"><div class="l">编织角度</div><div class="v" id="resA">-</div></div>
-      <div class="kpi"><div class="l">单丝直径</div><div class="v" id="resd">-</div></div>
+
+  <!-- 单锭机 -->
+  <div id="suture-single">
+    <div class="card">
+      <div class="segment" id="singleMode">
+        <button class="active" onclick="singleSetMode('W')">求宽度 W</button>
+        <button onclick="singleSetMode('D')">求旦尼尔 D</button>
+        <button onclick="singleSetMode('P')">求节距 P</button>
+      </div>
+      <div class="grid2">
+        <div style="grid-column:1/-1"><label>纤维材料库</label>
+          <select id="matType" onchange="singleUpdateK()">
+            <option value="0.01420">UHMWPE (超高分子量聚乙烯)</option>
+            <option value="0.01140">芳纶 (Kevlar)</option>
+            <option value="0.01189">PET (聚酯)</option>
+            <option value="0.01250">PA (尼龙)</option>
+            <option value="0.01480">PP (聚丙烯)</option>
+            <option value="0.00880">PTFE (铁氟龙)</option>
+            <option value="0.01020">碳纤维</option>
+            <option value="0.00850">玻璃纤维</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+        <div><label>锭数 N</label><input id="N" type="number" value="17"></div>
+        <div><label>结构</label><select id="singleCraft"><option value="1x1">1x1</option><option value="1x2" selected>1x2</option><option value="2x2">2x2</option></select></div>
+        <div><label>材料系数 k</label><input id="k" type="number" value="0.01420" step="0.00001"></div>
+        <div><label>经验修正 C</label><input id="C" type="number" value="0.258" step="0.001"></div>
+        <div><label>宽度 W (mm)</label><input id="W" type="number" value="3.2" step="0.1"></div>
+        <div><label>旦尼尔 D (Den)</label><input id="D" type="number" value="440" step="10"></div>
+        <div style="grid-column:1/-1"><label>节距 P (mm)</label><input id="P" type="number" value="17" step="0.1"></div>
+      </div>
+      <button class="btn mt8" onclick="singleRunCalc()">计算</button>
+    </div>
+    <div class="card">
+      <div class="grid1">
+        <div class="kpi"><div class="l">输出宽度</div><div class="v" id="resW">-</div></div>
+        <div class="kpi"><div class="l">所需旦尼尔</div><div class="v" id="resD">-</div></div>
+        <div class="kpi"><div class="l">编织角度</div><div class="v" id="resA">-</div></div>
+        <div class="kpi"><div class="l">单丝直径</div><div class="v" id="resd">-</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 双锭机：缝合线反推 -->
+  <div id="suture-dual" class="hidden">
+    <div class="card">
+      <div class="muted mb8">缝合线反推 — 输入线号和锭数，输出D数档位和推荐编织角</div>
+      <div class="grid2">
+        <div><label>线号</label><select id="du_gauge" onchange="dualGaugeChange()">
+          <option value="12-0">12-0 (0.001-0.009mm)</option>
+          <option value="11-0">11-0 (0.010-0.019mm)</option>
+          <option value="10-0">10-0 (0.020-0.029mm)</option>
+          <option value="9-0">9-0 (0.030-0.039mm)</option>
+          <option value="8-0">8-0 (0.040-0.049mm)</option>
+          <option value="7-0">7-0 (0.050-0.069mm)</option>
+          <option value="6-0">6-0 (0.070-0.099mm)</option>
+          <option value="5-0">5-0 (0.100-0.149mm)</option>
+          <option value="4-0">4-0 (0.150-0.199mm)</option>
+          <option value="3-0">3-0 (0.200-0.249mm)</option>
+          <option value="2-0/T">2-0/T (0.250-0.299mm)</option>
+          <option value="2-0">2-0 (0.300-0.349mm)</option>
+          <option value="0">0号 (0.350-0.399mm)</option>
+          <option value="1">1号 (0.400-0.499mm)</option>
+          <option value="2" selected>2号 (0.500-0.599mm)</option>
+          <option value="3/4">3/4 (0.600-0.699mm)</option>
+          <option value="5">5号 (0.700-0.799mm)</option>
+          <option value="6">6号 (0.800-0.899mm)</option>
+          <option value="7">7号 (0.900-0.999mm)</option>
+          <option value="8">8号 (1.000-1.099mm)</option>
+          <option value="9">9号 (1.100-1.199mm)</option>
+          <option value="10">10号 (1.200-1.299mm)</option>
+        </select></div>
+        <div><label>锭数</label><input id="du_spindles" type="number" value="16" step="1" min="2" oninput="dualCalc()"></div>
+        <div><label>材料</label><select id="du_material" onchange="dualCalc()">
+          <option value="0.97" selected>UHMWPE 超高分子聚乙烯</option>
+          <option value="1.38">PET 涤纶</option>
+          <option value="1.14">PA 尼龙</option>
+          <option value="0.91">PP 聚丙烯</option>
+        </select></div>
+        <div><label>目标 PPI (目数)</label><input id="du_ppi" type="number" value="40" step="1" oninput="dualCalc()"></div>
+      </div>
+      <button class="btn mt8" onclick="dualCalc()">计算</button>
+    </div>
+    <div class="card">
+      <div class="grid2">
+        <div class="kpi best"><div class="l">推荐D数</div><div class="v" id="du_outD">-</div><div class="l">Den</div></div>
+        <div class="kpi best"><div class="l">推荐PPI</div><div class="v" id="du_outPPI">-</div><div class="l">目数</div></div>
+        <div class="kpi best"><div class="l">推荐锭数</div><div class="v" id="du_outSp">-</div><div class="l">锭</div></div>
+        <div class="kpi"><div class="l">纱线直径</div><div class="v" id="du_outDia">-</div><div class="l">mm</div></div>
+        <div class="kpi"><div class="l">编织角</div><div class="v" id="du_outAngle">-</div><div class="l">°</div></div>
+        <div class="kpi"><div class="l">节距</div><div class="v" id="du_outPitch">-</div><div class="l">mm</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -589,31 +651,41 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
 <!-- ====== 产线校准 ====== -->
 <div class="page" id="page-calib">
   <div class="card">
-    <div class="muted mb8">分丝机计米倍率校准 — 实际出丝与设定不符时重新计算倍率</div>
-    <div class="grid2">
-      <div><label>设定米数 (m)</label><input id="cb_setLen" type="number" step="0.01" value="2"></div>
-      <div><label>实际测量米数 (m)</label><input id="cb_realLen" type="number" step="0.01" value="2.33"></div>
-      <div><label>当前计米倍率</label><input id="cb_curRatio" type="number" step="0.1" value="16.3"></div>
-    </div>
-    <button class="btn mt8" onclick="calibRatio()">计算新倍率</button>
-    <div class="kpi best mt8 hidden" id="cb_result" style="margin-top:10px">
-      <div class="l">新计米倍率</div><div class="v" id="cb_newRatio">-</div>
+    <div class="segment" id="calibMode">
+      <button class="active" onclick="calibSwitch('ratio')">分丝机倍率</button>
+      <button onclick="calibSwitch('dist')">移动量校准</button>
     </div>
   </div>
-  <div class="card">
-    <div class="muted mb8">每转移动量校准 — 实际目数与设定不符时调整移动量</div>
-    <div class="grid2">
-      <div><label>设定移动量 (μm)</label><input id="cb_setDist" type="number" step="1" value="5600"></div>
-      <div><label>设定目数</label><input id="cb_setPPI" type="number" step="1" value="64"></div>
-      <div><label>实际测得目数</label><input id="cb_realPPI" type="number" step="1" value="71"></div>
-    </div>
-    <button class="btn mt8" onclick="calibDist()">计算新移动量</button>
-    <div class="kpi best mt8 hidden" id="cb_result2" style="margin-top:10px">
-      <div class="l">调整后移动量</div><div class="v" id="cb_newDist">-</div>
-    </div>
-  </div>
-</div>
 
+  <div id="calib-ratio">
+    <div class="card">
+      <div class="muted mb8" style="font-size:11px">实际出丝与设定不符时重新计算倍率</div>
+      <div class="grid2">
+        <div><label>设定米数 (m)</label><input id="cb_setLen" type="number" step="0.01" value="2"></div>
+        <div><label>实际测量米数 (m)</label><input id="cb_realLen" type="number" step="0.01" value="2.33"></div>
+        <div><label>当前计米倍率</label><input id="cb_curRatio" type="number" step="0.1" value="16.3"></div>
+      </div>
+      <button class="btn mt8" onclick="calibRatio()">计算新倍率</button>
+      <div class="kpi best mt8 hidden" id="cb_result" style="margin-top:10px">
+        <div class="l">新计米倍率</div><div class="v" id="cb_newRatio">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="calib-dist" class="hidden">
+    <div class="card">
+      <div class="muted mb8" style="font-size:11px">实际目数与设定不符时调整移动量</div>
+      <div class="grid2">
+        <div><label>设定移动量 (μm)</label><input id="cb_setDist" type="number" step="1" value="5600"></div>
+        <div><label>设定目数</label><input id="cb_setPPI" type="number" step="1" value="64"></div>
+        <div><label>实际测得目数</label><input id="cb_realPPI" type="number" step="1" value="71"></div>
+      </div>
+      <button class="btn mt8" onclick="calibDist()">计算新移动量</button>
+      <div class="kpi best mt8 hidden" id="cb_result2" style="margin-top:10px">
+        <div class="l">调整后移动量</div><div class="v" id="cb_newDist">-</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Tab Bar -->
@@ -628,7 +700,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
   </button>
   <button class="tab-btn" data-page="single" onclick="switchPage('single')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
-    <span>单锭</span>
+    <span>缝合</span>
   </button>
   <button class="tab-btn" data-page="weight" onclick="switchPage('weight')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l3 12h12l3-12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
@@ -646,7 +718,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
 
 <script>
 // ========== Tab Navigation ==========
-const pageTitles = {braid:'编织计算',coil:'绕丝/缆绳',single:'单锭机',weight:'克重转换',gear:'齿轮反查',calib:'产线校准'};
+const pageTitles = {braid:'编织计算',coil:'绕丝/缆绳',single:'缝合线',weight:'克重转换',gear:'齿轮反查',calib:'产线校准'};
 function switchPage(name){
   document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='none'});
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -897,6 +969,63 @@ function singleRunCalc(){
 </script>
 
 <script>
+
+// ========== 缝合线双锭机 ==========
+// 物料守恒: D = 总D/N, 总D从实际数据取（多配置按锭数最近匹配）
+// PPI修正: D = 总D/N × (基准PPI/当前PPI)^0.212
+const DUAL_DATA = [
+  {g:'5', N:16, ppi:45, D:165}, {g:'2', N:16, ppi:40, D:110},
+  {g:'1', N:8, ppi:30, D:110},   {g:'0', N:12, ppi:30, D:55},
+  {g:'2-0', N:8, ppi:80, D:55},  {g:'2-0', N:12, ppi:35, D:55},
+  {g:'3-0', N:4, ppi:45, D:55},  {g:'3-0', N:6, ppi:38, D:55},
+  {g:'4-0', N:4, ppi:35, D:55},
+];
+const DUAL_GAUGE = {
+  '12-0':{od:0.005},'11-0':{od:0.015},'10-0':{od:0.025},'9-0':{od:0.035},
+  '8-0':{od:0.045},'7-0':{od:0.06},'6-0':{od:0.085},'5-0':{od:0.125},
+  '4-0':{od:0.175},'3-0':{od:0.225},'2-0/T':{od:0.275},'2-0':{od:0.325},
+  '0':{od:0.375},'1':{od:0.45},'2':{od:0.55},'3/4':{od:0.65},
+  '5':{od:0.75},'6':{od:0.85},'7':{od:0.95},'8':{od:1.05},'9':{od:1.15},'10':{od:1.25},
+};
+function dualRef(gauge,N,ppi){
+  const pts=DUAL_DATA.filter(d=>d.g===gauge);
+  if(pts.length===0){
+    const g=DUAL_GAUGE[gauge];if(!g)return{D:100,N:8,ppi:40};
+    return{D:Math.round(5800*g.od*g.od/8),N:8,ppi:40};
+  }
+  if(pts.length===1)return pts[0];
+  // 多配置: 按(N,ppi)加权找最近
+  let best=pts[0],bd=Math.abs(pts[0].N-N)+Math.abs(pts[0].ppi-ppi)*0.3;
+  pts.forEach(p=>{const d=Math.abs(p.N-N)+Math.abs(p.ppi-ppi)*0.3;if(d<bd){bd=d;best=p}});
+  return best;
+}
+function sutureSwitch(mode){
+  document.getElementById('suture-single').classList.toggle('hidden',mode!=='single');
+  document.getElementById('suture-dual').classList.toggle('hidden',mode!=='dual');
+  document.querySelectorAll('#sutureMode button').forEach((b,i)=>b.classList.toggle('active',(i===0)===(mode==='single')));
+}
+function dualCalc(){
+  const gauge=document.getElementById('du_gauge').value;
+  const g=DUAL_GAUGE[gauge];
+  const N=parseInt(document.getElementById('du_spindles').value)||8;
+  const rho=parseFloat(document.getElementById('du_material').value);
+  const ppi=parseFloat(document.getElementById('du_ppi').value);
+  if(!g||!N||N<2||!ppi||ppi<=0)return;
+  const ref=dualRef(gauge,N,ppi);
+  const totalD=ref.N*ref.D*Math.pow(ref.ppi/ppi,0.212);
+  const D=totalD/N*rho/0.97;
+  const Dround=Math.round(D);
+  const area=(D/9000)/rho/1000;
+  const d_yarn=Math.sqrt(4*area/Math.PI);
+  const angle=Math.atan(Math.PI*g.od*ppi/25.4)*180/Math.PI;
+  const pitch=25.4/ppi;
+  document.getElementById('du_outD').textContent=Dround;
+  document.getElementById('du_outPPI').textContent=ppi;
+  document.getElementById('du_outSp').textContent=N;
+  document.getElementById('du_outDia').textContent=d_yarn.toFixed(4);
+  document.getElementById('du_outAngle').textContent=angle.toFixed(1);
+  document.getElementById('du_outPitch').textContent=pitch.toFixed(3);
+}
 // ========== 克重转换 ==========
 let weightTab='metal';
 function weightSwitchTab(tab){
@@ -2167,6 +2296,11 @@ function gearSearch(){
 }
 
 // ========== 产线校准 ==========
+function calibSwitch(mode){
+  document.getElementById('calib-ratio').classList.toggle('hidden',mode!=='ratio');
+  document.getElementById('calib-dist').classList.toggle('hidden',mode!=='dist');
+  document.querySelectorAll('#calibMode button').forEach((b,i)=>b.classList.toggle('active',(i===0)===(mode==='ratio')));
+}
 function calibRatio(){
   const a=parseFloat(document.getElementById('cb_setLen').value),b=parseFloat(document.getElementById('cb_realLen').value),c=parseFloat(document.getElementById('cb_curRatio').value);
   if(!a||!b||!c||a<=0)return;
