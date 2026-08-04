@@ -165,7 +165,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
 .gear-box{display:flex;gap:4px;align-items:center}
 .gear{display:inline-flex;align-items:center;justify-content:center;
   width:30px;height:30px;border-radius:50%;
-  background:rgba(118,118,128,0.1);font-size:11px;font-weight:600}
+  background:rgba(118,118,128,0.1);font-size:11px;font-weight:600}.gear.ga{background:#007AFF;color:#fff;border:none}.gear.gb{background:#FF9500;color:#fff;border:none}.gear.gc{background:#34C759;color:#fff;border:none}.gear.gd{background:#FF3B30;color:#fff;border:none}
 .gear.hl{background:var(--blue);color:#fff}
 
 .hidden{display:none!important}
@@ -204,7 +204,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>目数 PPI</label><input id="ppi" type="text" inputmode="decimal" value="55" oninput="braidSync('ppi')" style="background:#FFF9EB"></div>
       <div><label>节距 Pitch (mm)</label><input id="pitchIn" type="text" inputmode="decimal" placeholder="" oninput="braidSync('pitch')" style="background:#F0FDF4"></div>
       <div><label>编织夹角 (°)</label><input id="angleIn" type="text" inputmode="decimal" placeholder="" oninput="braidSync('angle')" style="background:#F0F9FF"></div>
-      <div><label>成品长度 (mm)</label><input id="length" type="number" step="0.1" value="400000"></div>
+      <div><label>成品长度 (m)</label><input id="length" type="number" step="0.1" value="10"></div>
     </div>
     <div class="row mt8">
       <button class="btn" onclick="braidCalc()">计算</button>
@@ -216,7 +216,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div class="kpi best"><div class="l">用丝比</div><div class="v" id="ratio">-</div></div>
       <div class="kpi"><div class="l">编织夹角</div><div class="v" id="angle">-</div></div>
       <div class="kpi"><div class="l">节距</div><div class="v" id="pitchOut">-</div><div class="l">mm</div></div>
-      <div class="kpi"><div class="l">理论用丝比</div><div class="v" id="theory">-</div></div>
+      <div class="kpi"><div class="l">单目长度</div><div class="v" id="theory">-</div></div>
       <div class="kpi"><div class="l">单股用丝</div><div class="v" id="single">-</div><div class="l">m</div></div>
       <div class="kpi"><div class="l">机台用丝</div><div class="v" id="total">-</div><div class="l">m</div></div>
     </div>
@@ -593,7 +593,9 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
   <div class="card" id="gearTutorial">
     <div class="muted mb8" style="cursor:pointer;user-select:none" onclick="document.getElementById('gearTutBody').classList.toggle('hidden')">📖 齿轮调整教程 ▾</div>
     <div id="gearTutBody">
-      <div style="text-align:center;margin:10px 0;padding:12px;background:#f8f9fa;border-radius:10px">
+            <div style="display:flex;gap:16px;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div style="text-align:center;margin:10px 0;padding:12px;background:#f8f9fa;border-radius:10px">
         <svg viewBox="0 0 280 200" width="100%" height="150" style="max-width:300px">
           <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#999"/></marker></defs>
           <!-- Top shaft -->
@@ -637,9 +639,9 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
           <span>上轴·D连接皮带</span><span>中轴·B+C同轴</span><span>下轴·A主动</span>
         </div>
       </div>
-      <div style="font-size:13px;line-height:1.8;color:var(--text2)">
-        <p><b>齿轮比公式：</b>PPI ∝ (B×D) / (A×C)</p>
-        <p style="margin:8px 0;padding:8px 12px;background:#EBF5FF;border-radius:8px;border-left:3px solid var(--blue)">
+        </div>
+        <div style="flex:1;min-width:0;font-size:13px;line-height:1.8;color:var(--text2)">
+          <p style="margin:8px 0;padding:8px 12px;background:#EBF5FF;border-radius:8px;border-left:3px solid var(--blue)">
           <b>🔺 增加密度（PPI↑）：</b>减小 A 和 C 齿，增大 B 齿<br>
           <b>🔻 减少密度（PPI↓）：</b>增大 A 和 C 齿，减小 B 齿<br>
           <b>⚙ D 齿固定 46 齿，一般不换</b>
@@ -649,7 +651,8 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
         <p style="color:var(--red)"><b>⚠ 注意：</b>换齿轮前必须停机断电，安装后试运行检查咬合和编织效果。</p>
       </div>
     </div>
-  </div>
+        </div>
+      </div>
   <div class="card" id="gearVfd">
     <div class="muted mb8" style="cursor:pointer;user-select:none" onclick="document.getElementById('vfdBody').classList.toggle('hidden')">📟 变频器参数参考 ▾</div>
     <div id="vfdBody" class="hidden">
@@ -685,7 +688,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
     <div class="kpi best" id="bestKpi"></div>
   </div>
   <div class="card">
-    <div class="muted mb8">匹配结果（按偏差排序，前15个）</div>
+    <div class="muted mb8">匹配结果（按偏差排序）</div>
     <div id="results"></div>
   </div>
 </div>
@@ -793,9 +796,9 @@ function braidCalc(){
   if(!ppi||ppi<=0){bset('ratio','-');bset('angle','-');bset('pitchOut','-');bset('theory','-');bset('single','-');bset('total','-');return}
   const sA=singleAngle(D,ppi,sp,craft),bA=braidAngle(D,ppi,sp,craft),th=theoryRatio(D,ppi,sp,craft);
   const div=getPitchDivisor(craft),pitch=(sp/div)*(25.4/ppi),ratio=th;
-  const sM=ratio*len/1000,tM=sM*sp;
+  const sM=ratio*len,tM=sM*sp;
   bset('ratio',ratio.toFixed(3));bset('angle',bA.toFixed(2)+'°');bset('pitchOut',pitch.toFixed(2));
-  bset('theory',th.toFixed(3));bset('single',sM.toFixed(2)+' m');bset('total',tM.toFixed(2)+' m');
+  bset('theory',(25.4/ppi).toFixed(3)+' mm');bset('single',sM.toFixed(2)+' m');bset('total',tM.toFixed(2)+' m');
   braidBuildPreview();
 }
 function braidBuildPreview(){
@@ -803,12 +806,12 @@ function braidBuildPreview(){
   document.getElementById('preview').value=`【编织工艺参数参考】
 工艺：${craftText(document.getElementById('craft').value)}
 锭数：${sp} 锭 | 芯棒直径：${D.toFixed(3)} mm | 丝径：${d.toFixed(3)} mm
-目数：${ppi} PPI | 节距：${document.getElementById('pitchOut').textContent} mm | 成品长度：${len} mm
+目数：${ppi} PPI | 节距：${document.getElementById('pitchOut').textContent} mm | 成品长度：${len} m
 
 计算结果：
 1、用丝比：${document.getElementById('ratio').textContent}
 2、编织夹角：${document.getElementById('angle').textContent}
-3、单股理论用丝：${document.getElementById('single').textContent}
+3、单目长度：${document.getElementById('single').textContent}
 4、机台理论总用丝：${document.getElementById('total').textContent}`;
 }
 async function braidCopy(){
@@ -855,11 +858,11 @@ function nextCoreDia(core,layers){return layers.reduce((dia,l)=>l.active?l.od:di
 function coilSummarize(title,layers,len,loss){
   const active=layers.filter(x=>x.active),totalRatio=active.reduce((s,x)=>s+x.ratio,0),total2=active.reduce((s,x)=>s+x.total2,0),od=active.length?active[active.length-1].od:layers[0].od;
   const lines=active.map(x=>`${x.name}: ${x.n}股 ${x.dir} 捻距${x.pitch.toFixed(4)}mm 单股比1:${x.perRatio.toFixed(3)} 每股${x.per2.toFixed(2)}m`).join('\n');
-  const text=`[${title}]\n成品长度: ${len}m\n损耗: ${loss}%\n外径: ${od.toFixed(3)}mm\n总用丝比: 1:${totalRatio.toFixed(3)}\n含损耗总用丝: ${total2.toFixed(2)}m\n${lines}`;
-  const html=`<div class="grid2">${coilKpi('理论外径',`${od.toFixed(3)} mm`)}${coilKpi('总用丝比',`1 : ${totalRatio.toFixed(3)}`)}${coilKpi('总用丝(含损耗)',`${total2.toFixed(2)} m`)}</div>
+  const text=`[${title}]\n成品长度: ${len}m\n损耗: ${loss}%\n外径: ${od.toFixed(3)}mm\n总单目长度: 1:${totalRatio.toFixed(3)}\n含损耗总用丝: ${total2.toFixed(2)}m\n${lines}`;
+  const html=`<div class="grid2">${coilKpi('理论外径',`${od.toFixed(3)} mm`)}${coilKpi('总单目长度',`1 : ${totalRatio.toFixed(3)}`)}${coilKpi('总用丝(含损耗)',`${total2.toFixed(2)} m`)}</div>
     <div style="border-top:1px solid var(--sep);margin:10px 0"></div>
     ${active.map(x=>`<div style="font-weight:600;margin:8px 0 4px">[${x.name}] ${x.n}股 | ${x.dir} | 捻距 ${x.pitch.toFixed(4)} mm</div>
-      <div class="grid2">${coilKpi('单股用丝比',`1 : ${x.perRatio.toFixed(3)}`)}${coilKpi('每股建议用丝',`${x.per2.toFixed(2)} m`)}${coilKpi('密绕捻距',`${x.denseP.toFixed(4)} mm`)}${coilKpi('间隙绕捻距',`${(x.denseP+(x.gap||0)).toFixed(4)} mm`)}</div>`).join('')}`;
+      <div class="grid2">${coilKpi('单股单目长度',`1 : ${x.perRatio.toFixed(3)}`)}${coilKpi('每股建议用丝',`${x.per2.toFixed(2)} m`)}${coilKpi('密绕捻距',`${x.denseP.toFixed(4)} mm`)}${coilKpi('间隙绕捻距',`${(x.denseP+(x.gap||0)).toFixed(4)} mm`)}</div>`).join('')}`;
   return{html,text};
 }
 function coilCalcRope(){
@@ -869,7 +872,7 @@ function coilCalcRope(){
   const rRF=getS('s_rope_ratio','1.000'),rOF=getS('s_rope_od','1.000'),rSF=getS('s_rope_speed','1.000');
   const hI=helixFactor(d*0.6,p1),rCS=1+6*hI,hO=helixFactor(d*0.5,p2),rOS=1+6*hO,hC=helixFactor(3*d*0.4,p3),totalRatio=(rCS+6*(rOS*hC))*tightMul(tight)*rRF;
   const avgWR=totalRatio/49,maxWR=hO*hC*tightMul(tight)*rRF,speedMM=rpm*p1*rSF,od=9*d*tightOdMul(tight)*rOF,total2=L*totalRatio*pctLoss(loss),per2=spool===49?L*maxWR*pctLoss(loss):L*rOS*hC*tightMul(tight)*rRF*pctLoss(loss),perText=spool===49?'最长单丝':'外侧股';
-  const html=`<div class="grid2">${coilKpi('平均单股用丝比',`1:${avgWR.toFixed(3)}`)}${coilKpi('最长单丝用丝比',`1:${maxWR.toFixed(3)}`)}${coilKpi('总用丝比',`1:${totalRatio.toFixed(2)}`)}${coilKpi('估算外径',`${od.toFixed(3)}mm`)}${coilKpi('机台效率',`${speedMM.toFixed(1)}mm/min`)}${coilKpi(`备料(${perText})`,`${per2.toFixed(2)}m`)}</div><p class="muted">含损耗总用丝：<b>${total2.toFixed(2)} m</b></p>`;
+  const html=`<div class="grid2">${coilKpi('平均单股单目长度',`1:${avgWR.toFixed(3)}`)}${coilKpi('最长单丝单目长度',`1:${maxWR.toFixed(3)}`)}${coilKpi('总单目长度',`1:${totalRatio.toFixed(2)}`)}${coilKpi('估算外径',`${od.toFixed(3)}mm`)}${coilKpi('机台效率',`${speedMM.toFixed(1)}mm/min`)}${coilKpi(`备料(${perText})`,`${per2.toFixed(2)}m`)}</div><p class="muted">含损耗总用丝：<b>${total2.toFixed(2)} m</b></p>`;
   coilSetOut('out_rope',html);
 }
 function coilFillRope(){['r_d','r_L','r_p1','r_p2','r_p3'].forEach((id,i)=>document.getElementById(id).value=[0.20,200,20,5,6][i]);coilCalcRope()}
@@ -2383,11 +2386,14 @@ function gearSearch(){
     const gr=(g[1]*g[3])/(g[0]*g[2]),ppi=138176*gr/(p.dial*p.roller),pitch=ppi>0?12.7*p.spindles/ppi:0;
     return{a:g[0],b:g[1],c:g[2],d:g[3],ppi,pitch,dev:Math.abs(ppi-tPpi),devPct:Math.abs(ppi-tPpi)/tPpi*100};
   });
-  scored.sort((a,b)=>a.dev-b.dev);const top=scored.slice(0,15),best=top[0];
+  scored.sort((a,b)=>a.dev-b.dev);const unique=[],seen=new Set();scored.forEach(x=>{const k=x.ppi.toFixed(4);if(!seen.has(k)){seen.add(k);unique.push(x)}});const above=unique.filter(x=>x.ppi>tPpi).sort((a,b)=>a.dev-b.dev).slice(0,4);const below=unique.filter(x=>x.ppi<tPpi).sort((a,b)=>a.dev-b.dev).slice(0,4);
   document.getElementById('bestCard').classList.remove('hidden');
-  document.getElementById('bestKpi').innerHTML='<div class="l">最优齿轮组合</div><div class="v" style="font-size:18px">A='+best.a+' · B='+best.b+' · C='+best.c+' · D='+best.d+'</div><div style="color:var(--text3);font-size:13px;margin-top:4px">目数 '+best.ppi.toFixed(4)+' PPI | 节距 '+best.pitch.toFixed(3)+' mm | 偏差 '+best.devPct.toFixed(2)+'%</div>';
+  const best=unique[0];
+  document.getElementById('bestKpi').innerHTML='<div class="l">🥇 最佳推荐</div><div class="v" style="font-size:20px"><span style="color:#007AFF;font-weight:700">A='+best.a+'</span> · <span style="color:#FF9500;font-weight:700">B='+best.b+'</span> · <span style="color:#34C759;font-weight:700">C='+best.c+'</span> · <span style="color:#FF3B30;font-weight:700">D='+best.d+'</span></div><div style="color:var(--blue);font-size:13px;margin-top:4px">PPI '+best.ppi.toFixed(4)+' | 节距 '+best.pitch.toFixed(3)+' mm | 偏差 '+best.devPct.toFixed(2)+'%</div>';
   let html='';
-  top.forEach((r,i)=>{html+='<div class="result-row'+(i===0?' best':'')+'"><div class="gear-box"><span class="gear hl">A'+r.a+'</span><span class="gear">B'+r.b+'</span><span class="gear">C'+r.c+'</span><span class="gear">D'+r.d+'</span></div><div style="flex:1;margin-left:10px"><div style="font-size:14px">PPI <b>'+r.ppi.toFixed(4)+'</b> · Pitch <b>'+r.pitch.toFixed(3)+' mm</b></div><div class="muted">偏差 '+r.devPct.toFixed(2)+'%'+(i===0?' · <span style="color:var(--blue);font-weight:600">最佳</span>':'')+'</div></div></div>'});
+  above.forEach((r,i)=>{html+='<div class="result-row"><div class="gear-box"><span class="gear hl">A'+r.a+'</span><span class="gear">B'+r.b+'</span><span class="gear">C'+r.c+'</span><span class="gear">D'+r.d+'</span></div><div style="flex:1;margin-left:10px"><div style="font-size:14px">PPI <b>'+r.ppi.toFixed(4)+'</b> · Pitch <b>'+r.pitch.toFixed(3)+' mm</b></div><div class="muted">偏差 +'+r.devPct.toFixed(2)+'%</div></div></div>';});
+  html+='<div class="result-row best" style="border:2px solid var(--blue);background:#EBF5FF"><div class="gear-box"><span class="gear ga">A'+best.a+'</span><span class="gear gb">B'+best.b+'</span><span class="gear gc">C'+best.c+'</span><span class="gear gd">D'+best.d+'</span></div><div style="flex:1;margin-left:10px"><div style="font-size:14px;font-weight:700">🎯 目标最优</div><div style="font-size:14px">PPI <b>'+best.ppi.toFixed(4)+'</b> · Pitch <b>'+best.pitch.toFixed(3)+' mm</b></div><div class="muted">偏差 '+best.devPct.toFixed(2)+'%</div></div></div>';
+  below.forEach((r,i)=>{html+='<div class="result-row"><div class="gear-box"><span class="gear hl">A'+r.a+'</span><span class="gear">B'+r.b+'</span><span class="gear">C'+r.c+'</span><span class="gear">D'+r.d+'</span></div><div style="flex:1;margin-left:10px"><div style="font-size:14px">PPI <b>'+r.ppi.toFixed(4)+'</b> · Pitch <b>'+r.pitch.toFixed(3)+' mm</b></div><div class="muted">偏差 -'+r.devPct.toFixed(2)+'%</div></div></div>';});
   document.getElementById('results').innerHTML=html;
 }
 
