@@ -590,12 +590,26 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       公式：PPI = 138176 × (B×D)/(A×C) / (拨盘 × 滚筒周长) ；Pitch = 12.7 × 锭数 / PPI
     </div>
   </div>
+  <div class="card">
+    <div class="row">
+      <div style="flex:1"><label>目标目数 PPI</label><input id="ppiIn" type="number" step="0.01" placeholder="输入目数" oninput="gearOnPPI()"></div>
+      <div style="flex:1"><label>目标节距 mm</label><input id="pitchInGear" type="number" step="0.001" placeholder="输入节距" oninput="gearOnPitch()"></div>
+    </div>
+  </div>
+  <div class="card hidden" id="bestCard">
+    <div class="kpi best" id="bestKpi"></div>
+  </div>
+  <div class="card">
+    <div class="muted mb8">匹配结果（按偏差排序）</div>
+    <div id="results"></div>
+  </div>
   <div class="card" id="gearTutorial">
     <div class="muted mb8" style="cursor:pointer;user-select:none" onclick="document.getElementById('gearTutBody').classList.toggle('hidden')">📖 齿轮调整教程 ▾</div>
     <div id="gearTutBody">
-            <div style="display:flex;gap:16px;align-items:flex-start">
-        <div style="flex:1;min-width:0">
-          <div style="text-align:center;margin:10px 0;padding:12px;background:#f8f9fa;border-radius:10px">
+              <p style="margin:4px 0"><b>操作步骤：</b><br>
+        ① 输入目标 PPI 或节距 → ② 查看推荐齿轮组合 → ③ 选择偏差最小的组合 → ④ 停机更换 A/B/C 齿轮 → ⑤ 试运行确认密度</p>
+        <p style="margin:4px 0;color:var(--red)"><b>⚠ 注意：</b>换齿轮前必须停机断电，安装后试运行检查咬合和编织效果。</p>
+<div style="text-align:center;margin:10px 0;padding:12px;background:#f8f9fa;border-radius:10px">
         <svg viewBox="0 0 280 200" width="100%" height="150" style="max-width:300px">
           <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#999"/></marker></defs>
           <!-- Top shaft -->
@@ -640,19 +654,15 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
         </div>
       </div>
         </div>
-        <div style="flex:1;min-width:0;font-size:13px;line-height:1.8;color:var(--text2)">
+        <div style="font-size:13px;line-height:1.8;color:var(--text2);margin-top:8px">
           <p style="margin:8px 0;padding:8px 12px;background:#EBF5FF;border-radius:8px;border-left:3px solid var(--blue)">
           <b>🔺 增加密度（PPI↑）：</b>减小 A 和 C 齿，增大 B 齿<br>
           <b>🔻 减少密度（PPI↓）：</b>增大 A 和 C 齿，减小 B 齿<br>
           <b>⚙ D 齿固定 46 齿，一般不换</b>
         </p>
-        <p><b>操作步骤：</b><br>
-          ① 输入目标 PPI 或节距 → ② 查看推荐齿轮组合 → ③ 选择偏差最小的组合 → ④ 停机更换 A/B/C 齿轮 → ⑤ 试运行确认密度</p>
-        <p style="color:var(--red)"><b>⚠ 注意：</b>换齿轮前必须停机断电，安装后试运行检查咬合和编织效果。</p>
+        
       </div>
     </div>
-        </div>
-      </div>
   <div class="card" id="gearVfd">
     <div class="muted mb8" style="cursor:pointer;user-select:none" onclick="document.getElementById('vfdBody').classList.toggle('hidden')">📟 变频器参数参考 ▾</div>
     <div id="vfdBody" class="hidden">
@@ -677,19 +687,6 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
         </table>
       </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="row">
-      <div style="flex:1"><label>目标目数 PPI</label><input id="ppiIn" type="number" step="0.01" placeholder="输入目数" oninput="gearOnPPI()"></div>
-      <div style="flex:1"><label>目标节距 mm</label><input id="pitchInGear" type="number" step="0.001" placeholder="输入节距" oninput="gearOnPitch()"></div>
-    </div>
-  </div>
-  <div class="card hidden" id="bestCard">
-    <div class="kpi best" id="bestKpi"></div>
-  </div>
-  <div class="card">
-    <div class="muted mb8">匹配结果（按偏差排序）</div>
-    <div id="results"></div>
   </div>
 </div>
 
