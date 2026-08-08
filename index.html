@@ -442,7 +442,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
           <option value="10">10号 (1.200-1.299mm)</option>
         </select></div>
         <div><label>锭数</label><input id="du_spindles" type="number" value="16" step="1" min="2" oninput="dualCalc()"></div>
-        <div><label>材料</label><select id="du_material" onchange="dualCalc()">
+        <div><label>材料</label><select id="du_material" onchange="dualMaterialChange()">
           <option value="0.97" selected>UHMWPE 超高分子聚乙烯</option>
           <option value="1.38">PET 涤纶</option>
           <option value="1.14">PA 尼龙</option>
@@ -458,14 +458,17 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
           <option value="1.36">蚕丝</option>
         </select></div>
         <div><label>目标 PPI (目数)</label><input id="du_ppi" type="number" value="40" step="1" oninput="dualCalc()"></div>
+        <div id="du_odWrap" class="hidden"><label>目标外径 (mm)</label><input id="du_od" type="number" step="0.001" value="0.55" oninput="dualCalc()"></div>
       </div>
       <button class="btn mt8" onclick="dualCalc()">计算</button>
+      <div id="du_note" class="muted mt8" style="font-size:11px"></div>
     </div>
     <div class="card">
       <div class="grid2">
         <div class="kpi best"><div class="l">推荐D数</div><div class="v" id="du_outD">-</div><div class="l">Den</div></div>
         <div class="kpi best"><div class="l">推荐PPI</div><div class="v" id="du_outPPI">-</div><div class="l">目数</div></div>
         <div class="kpi best"><div class="l">推荐锭数</div><div class="v" id="du_outSp">-</div><div class="l">锭</div></div>
+        <div class="kpi best"><div class="l">预估外径</div><div class="v" id="du_outOD">-</div><div class="l">mm</div></div>
         <div class="kpi"><div class="l">纱线直径</div><div class="v" id="du_outDia">-</div><div class="l">mm</div></div>
         <div class="kpi"><div class="l">编织角</div><div class="v" id="du_outAngle">-</div><div class="l">°</div></div>
         <div class="kpi"><div class="l">节距</div><div class="v" id="du_outPitch">-</div><div class="l">mm</div></div>
@@ -1038,6 +1041,13 @@ const DUAL_GAUGE = {
   '0':{od:0.375},'1':{od:0.45},'2':{od:0.55},'3/4':{od:0.65},
   '5':{od:0.75},'6':{od:0.85},'7':{od:0.95},'8':{od:1.05},'9':{od:1.15},'10':{od:1.25},
 };
+// 实测三点校准（均8锭）：
+// UHMWPE 110D/30PPI→0.465mm(实测0.45-0.48)；LCP 200D/10PPI→0.60mm、200D/30PPI→0.55mm
+// 模型: OD = A*d^a*(PPI/10)^b*(N/8)^0.5，d为纱线等效直径
+const LCP_CAL = {g:'3/4', od:0.65, N:8, ppi:10, D:200, odMeasured:0.60};
+const LCP_PPI_EXP=-0.079201; // ln(0.55/0.60)/ln(30/10)
+const LCP_D_EXP=1.454109;    // ln(0.465/0.55)/ln(d110UH/d200LCP)
+const LCP_OD_A=10.235148;
 function dualRef(gauge,N,ppi){
   const pts=DUAL_DATA.filter(d=>d.g===gauge);
   if(pts.length===0){
@@ -1049,6 +1059,31 @@ function dualRef(gauge,N,ppi){
   let best=pts[0],bd=Math.abs(pts[0].N-N)+Math.abs(pts[0].ppi-ppi)*0.3;
   pts.forEach(p=>{const d=Math.abs(p.N-N)+Math.abs(p.ppi-ppi)*0.3;if(d<bd){bd=d;best=p}});
   return best;
+}
+function yarnD(D,rho){
+  return Math.sqrt(4*D/(9000*rho*Math.PI));
+}
+function dualFitOD(D,N,ppi,rho){
+  return LCP_OD_A*Math.pow(yarnD(D,rho),LCP_D_EXP)*Math.pow(ppi/10,LCP_PPI_EXP)*Math.pow(N/8,0.5);
+}
+function dualFitD(od,N,ppi,rho){
+  const d0=Math.pow(od/(LCP_OD_A*Math.pow(ppi/10,LCP_PPI_EXP)*Math.pow(N/8,0.5)),1/LCP_D_EXP);
+  return 9000*rho*Math.PI/4*d0*d0;
+}
+function dualSyncTargetOD(){
+  const gauge=document.getElementById('du_gauge').value;
+  const rho=parseFloat(document.getElementById('du_material').value);
+  // UHMWPE 暂按实测参考行推荐，不显示目标外径；其余材料按目标外径反推
+  document.getElementById('du_odWrap').classList.toggle('hidden',rho===0.97);
+  document.getElementById('du_od').value=rho===1.40&&gauge==='3/4'?LCP_CAL.odMeasured:DUAL_GAUGE[gauge].od;
+}
+function dualGaugeChange(){
+  dualSyncTargetOD();
+  dualCalc();
+}
+function dualMaterialChange(){
+  dualSyncTargetOD();
+  dualCalc();
 }
 function sutureSwitch(mode){
   document.getElementById('suture-single').classList.toggle('hidden',mode!=='single');
@@ -1110,20 +1145,34 @@ function dualCalc(){
   const rho=parseFloat(document.getElementById('du_material').value);
   const ppi=parseFloat(document.getElementById('du_ppi').value);
   if(!g||!N||N<2||!ppi||ppi<=0)return;
-  const ref=dualRef(gauge,N,ppi);
-  const totalD=ref.N*ref.D*Math.pow(ref.ppi/ppi,0.212);
-  const D=totalD/N*rho/0.97;
+  let D,note='';
+  if(rho===0.97){
+    // UHMWPE 暂用实测参考行推荐
+    const ref=dualRef(gauge,N,ppi);
+    const totalD=ref.N*ref.D*Math.pow(ref.ppi/ppi,0.212);
+    D=totalD/N*rho/0.97;
+  }else{
+    // LCP 及其他材料：按目标外径反推 D
+    const od=parseFloat(document.getElementById('du_od').value)||g.od;
+    D=dualFitD(od,N,ppi,rho);
+    note=rho===1.40
+      ?'LCP按实测校准'
+      :'按实测拟合外推（校准点以UHMWPE/LCP为准），换材料后需实测核对';
+  }
   const Dround=Math.round(D);
   const area=D/9000/rho;
   const d_yarn=Math.sqrt(4*area/Math.PI);
   const angle=Math.atan(Math.PI*g.od*ppi/25.4)*180/Math.PI;
   const pitch=25.4/ppi;
+  const estOD=dualFitOD(D,N,ppi,rho);
   document.getElementById('du_outD').textContent=Dround;
   document.getElementById('du_outPPI').textContent=ppi;
   document.getElementById('du_outSp').textContent=N;
+  document.getElementById('du_outOD').textContent=estOD.toFixed(3);
   document.getElementById('du_outDia').textContent=d_yarn.toFixed(4);
   document.getElementById('du_outAngle').textContent=angle.toFixed(1);
   document.getElementById('du_outPitch').textContent=pitch.toFixed(3);
+  document.getElementById('du_note').textContent=note;
 }
 function torqueCalc(){
   const w=parseFloat(document.getElementById('tq_weight').value)||0;
