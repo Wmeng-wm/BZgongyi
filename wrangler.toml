@@ -4,6 +4,6 @@ compatibility_date = "2025-01-01"
 
 workers_dev = true
 
-custom_domains = [
-  "bzgongyi.ksjizhang.top"
+routes = [
+  { pattern = "bzgongyi.ksjizhang.top", custom_domain = true }
 ]

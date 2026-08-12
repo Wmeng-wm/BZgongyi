@@ -19,7 +19,7 @@
   --text3: #8E8E93;
   --sep: #C6C6C8;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --tab-h: calc(64px + var(--safe-bottom));
+  --tab-h: calc(84px + var(--safe-bottom));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
@@ -37,22 +37,31 @@ body.no-scroll{overflow:hidden}
 /* Tab Bar */
 .tab-bar{
   position:fixed;bottom:0;left:0;right:0;z-index:100;
-  padding-bottom:var(--safe-bottom);
-  background:rgba(242,242,247,0.85);
-  backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
-  border-top:0.5px solid rgba(0,0,0,0.1);
+  margin:0 14px calc(12px + var(--safe-bottom));
+  padding:8px;
+  background:rgba(250,250,252,0.30);
+  backdrop-filter:saturate(180%) blur(28px);
+  -webkit-backdrop-filter:saturate(180%) blur(28px);
+  border-radius:26px;
+  border:0.5px solid rgba(255,255,255,0.5);
+  box-shadow:0 8px 24px rgba(0,0,0,0.10), inset 0 0 0 0.5px rgba(255,255,255,0.6);
   display:flex;
+  gap:2px;
 }
 .tab-btn{
-  flex:1;height:64px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:4px;
-  color:var(--text3);font-size:12px;font-weight:500;
+  flex:1;height:56px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  color:var(--text3);font-size:11px;font-weight:500;
   background:none;border:none;cursor:pointer;
-  transition:color 0.15s;
+  border-radius:20px;
+  transition:color 0.2s, background 0.2s, transform 0.2s;
 }
-.tab-btn.active{color:var(--blue)}
-.tab-btn svg{width:30px;height:30px}
+.tab-btn.active{
+  color:var(--blue);
+  background:rgba(0,122,255,0.10);
+}
+.tab-btn:active{transform:scale(0.92)}
+.tab-btn svg{width:26px;height:26px}
 .tab-btn .badge{
   position:absolute;top:2px;margin-left:16px;
   width:8px;height:8px;border-radius:50%;background:var(--red);
