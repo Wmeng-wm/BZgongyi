@@ -209,7 +209,8 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>锭数</label><input id="spindles" type="number" value="144" oninput="braidSync('ppi')"></div>
       <div><label>工艺结构</label><select id="craft" onchange="braidSync('ppi')"><option value="1x1">一压一</option><option value="1x2" selected>一压二</option><option value="2x2">二压二</option></select></div>
       <div><label>芯棒直径 D (mm)</label><input id="mandrel" type="number" step="0.001" value="8" oninput="braidSync('ppi')"></div>
-      <div><label>丝径 d (mm)</label><input id="wire" type="number" step="0.001" value="0.03"></div>
+      <div><label>丝径 d (mm)</label><input id="wire" type="number" step="0.001" value="0.03" oninput="braidWireSync()"></div>
+      <div><label>丝宽 w (mm)</label><input id="bwidth" type="number" step="0.001" value="0.030" oninput="braidCalc()" title="单根纱线压扁后的宽度；圆丝≈丝径，复丝/扁丝按实测或丝径×1.5~2.5"></div>
       <div><label>目数 PPI</label><input id="ppi" type="text" inputmode="decimal" value="55" oninput="braidSync('ppi')" style="background:#FFF9EB"></div>
       <div><label>节距 Pitch (mm)</label><input id="pitchIn" type="text" inputmode="decimal" placeholder="" oninput="braidSync('pitch')" style="background:#F0FDF4"></div>
       <div><label>编织夹角 (°)</label><input id="angleIn" type="text" inputmode="decimal" placeholder="" oninput="braidSync('angle')" style="background:#F0F9FF"></div>
@@ -228,6 +229,9 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div class="kpi"><div class="l">单目长度</div><div class="v" id="theory">-</div></div>
       <div class="kpi"><div class="l">单股用丝</div><div class="v" id="single">-</div><div class="l">m</div></div>
       <div class="kpi"><div class="l">机台用丝</div><div class="v" id="total">-</div><div class="l">m</div></div>
+      <div class="kpi"><div class="l">覆盖率</div><div class="v" id="cover">-</div><div class="l">无网孔=100%</div></div>
+      <div class="kpi"><div class="l">当前孔径</div><div class="v" id="mesh">-</div><div class="l" id="meshSub">mm</div></div>
+      <div class="kpi"><div class="l">输出外径</div><div class="v" id="od">-</div><div class="l">mm</div></div>
     </div>
   </div>
   <textarea id="preview" style="display:none"></textarea>
@@ -809,28 +813,69 @@ function braidSync(source){
 function singleAngle(D,ppi,sp,craft){let div=getPitchDivisor(craft),pitch=(sp/div)*(25.4/ppi);return Math.atan((Math.PI*D)/pitch)*180/Math.PI}
 function braidAngle(D,ppi,sp,craft){return singleAngle(D,ppi,sp,craft)*2}
 function theoryRatio(D,ppi,sp,craft){let a=singleAngle(D,ppi,sp,craft)*Math.PI/180;return 1/Math.cos(a)}
+// 覆盖率与网孔：把芯棒表面展开成平面，两方向纱带(宽 w)交叉，孔为菱形
+//   θ  = 单股螺旋角（与轴线夹角，页面「编织夹角」= 2θ）
+//   单向覆盖率 C1 = (锭数/2)×w ÷(π·D·cosθ)
+//   交织覆盖率 C  = 1-(1-C1)²
+//   当前孔径 g    = 相邻同向纱线净间隙 = w×(1/C1 - 1)，即菱形网孔内切圆直径（能漏出芯棒的尺寸）
+function braidCoverage(D,w,ppi,sp,craft){
+  if(!(D>0)||!(w>0)||!(ppi>0)||!(sp>0))return null;
+  const cs=Math.cos(singleAngle(D,ppi,sp,craft)*Math.PI/180);
+  if(!(cs>0))return null;
+  const c1=Math.min(1,Math.max(0,(sp/2)*w/(Math.PI*D*cs)));   // 单向覆盖率（≥1 封顶）
+  const gap=w*(1/Math.max(c1,1e-9)-1);                        // 当前孔径，C1≥1 → 0
+  return {single:c1,total:1-(1-c1)*(1-c1),gap:gap};
+}
+// 输出外径：芯棒 D + 2×丝径 d（单侧一层丝厚）
+function braidOuterDia(D,d){return (D>0?D:0)+2*(d>0?d:0)}
+// 丝宽跟随丝径：仅在用户未手动改过丝宽时自动同步（圆丝近似）
+let braidAutoWidth='';
+function braidWireSync(){
+  const d=bv('wire'),el=document.getElementById('bwidth'),cur=parseFloat(el.value);
+  const isAuto=braidAutoWidth===''||!isFinite(cur)||Math.abs(cur-parseFloat(braidAutoWidth))<1e-9;
+  if(d>0&&(el.value===''||isAuto)){braidAutoWidth=d.toFixed(3);el.value=braidAutoWidth}
+  braidCalc();
+}
 function braidCalc(){
   const sp=bv('spindles'),D=bv('mandrel'),ppi=bv('ppi'),len=bv('length'),craft=document.getElementById('craft').value;
-  if(!ppi||ppi<=0){bset('ratio','-');bset('angle','-');bset('pitchOut','-');bset('theory','-');bset('single','-');bset('total','-');return}
+  if(!ppi||ppi<=0){['ratio','angle','pitchOut','theory','single','total','cover','mesh','od'].forEach(k=>bset(k,'-'));return}
   const sA=singleAngle(D,ppi,sp,craft),bA=braidAngle(D,ppi,sp,craft),th=theoryRatio(D,ppi,sp,craft);
   const div=getPitchDivisor(craft),pitch=(sp/div)*(25.4/ppi),ratio=th;
   const sM=ratio*len,tM=sM*sp;
   bset('ratio',ratio.toFixed(3));bset('angle',bA.toFixed(2)+'°');bset('pitchOut',pitch.toFixed(2));
   bset('theory',(25.4/ppi).toFixed(3)+' mm');bset('single',sM.toFixed(2)+' m');bset('total',tM.toFixed(2)+' m');
+  const cv=braidCoverage(D,bv('bwidth'),ppi,sp,craft);
+  const covEl=document.getElementById('cover'),meshEl=document.getElementById('mesh');
+  if(cv){
+    bset('cover',(cv.total*100).toFixed(1)+'%');
+    covEl.style.color=cv.gap<=0?'var(--green)':(cv.total>=0.5?'var(--blue)':'var(--orange)');
+    bset('mesh',braidFmtLen(cv.gap));bset('meshSub',cv.gap<=0?'无网孔':'mm');
+    meshEl.style.color=cv.gap<=0?'var(--green)':'var(--blue)';
+  }else{
+    bset('cover','-');covEl.style.color='var(--blue)';
+    bset('mesh','-');bset('meshSub','mm');meshEl.style.color='var(--blue)';
+  }
+  const od=braidOuterDia(D,bv('wire'));
+  bset('od',od>0?od.toFixed(3):'-');
   braidBuildPreview();
 }
+// 孔径长度显示：<1mm 三位小数，1~10mm 两位，≥10mm 一位
+function braidFmtLen(v){return v>=10?v.toFixed(1):(v>=1?v.toFixed(2):v.toFixed(3))}
 function braidBuildPreview(){
-  const sp=bv('spindles'),D=bv('mandrel'),d=bv('wire'),ppi=bv('ppi'),len=bv('length');
+  const sp=bv('spindles'),D=bv('mandrel'),d=bv('wire'),w=bv('bwidth'),ppi=bv('ppi'),len=bv('length');
   document.getElementById('preview').value=`【编织工艺参数参考】
 工艺：${craftText(document.getElementById('craft').value)}
-锭数：${sp} 锭 | 芯棒直径：${D.toFixed(3)} mm | 丝径：${d.toFixed(3)} mm
+锭数：${sp} 锭 | 芯棒直径：${D.toFixed(3)} mm | 丝径：${d.toFixed(3)} mm | 丝宽：${w>0?w.toFixed(3):'-'} mm
 目数：${ppi} PPI | 节距：${document.getElementById('pitchOut').textContent} mm | 成品长度：${len} m
 
 计算结果：
 1、用丝比：${document.getElementById('ratio').textContent}
 2、编织夹角：${document.getElementById('angle').textContent}
-3、单目长度：${document.getElementById('single').textContent}
-4、机台理论总用丝：${document.getElementById('total').textContent}`;
+3、覆盖率：${document.getElementById('cover').textContent}（100% = 网孔闭合看不见芯棒）
+4、输出外径：${document.getElementById('od').textContent} mm
+5、单目长度：${document.getElementById('theory').textContent}
+6、单股用丝：${document.getElementById('single').textContent}
+7、机台理论总用丝：${document.getElementById('total').textContent}`;
 }
 async function braidCopy(){
   braidCalc();
