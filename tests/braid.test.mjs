@@ -25,7 +25,7 @@ const pageEnd = html.indexOf('<!-- ====== 绕丝', pageStart);
 ok(pageStart >= 0 && pageEnd > pageStart, '找到编织页 HTML 片段');
 const braidHtml = pageStart >= 0 && pageEnd > pageStart ? html.slice(pageStart, pageEnd) : '';
 
-for (const id of ['wire', 'wireShape', 'wireLabel', 'flatW', 'shares', 'bwidth', 'ppi', 'pitchIn', 'angleIn', 'craft', 'cover', 'mesh', 'od', 'odOff', 'odOffSub', 'natAngle', 'rebound']) {
+for (const id of ['wire', 'wireShape', 'wireLabel', 'flatW', 'shares', 'bwidth', 'ppi', 'pitchIn', 'angleIn', 'craft', 'cover', 'mesh', 'od', 'odOff', 'odOffSub']) {
   ok(braidHtml.includes(`id="${id}"`), `编织页存在 #${id}`);
 }
 ok(/<input id="bwidth"[^>]*readonly/.test(braidHtml), '丝宽 w 为只读（自动推算）');
@@ -33,6 +33,7 @@ ok(/<select id="wireShape"[^>]*braidShapeChange/.test(braidHtml), '丝型选择�
 ok(/<span id="flatX" class="hidden"/.test(braidHtml) && /<input id="flatW" class="hidden"/.test(braidHtml), '扁丝厚度/宽度同格：× 与宽度默认隐藏');
 ok(!braidHtml.includes('id="flatWidthWrap"'), '宽度不再单独占一个格子');
 ok(braidHtml.includes('股数 n（空=单股）'), '股数标签注明「空=单股」');
+ok(!braidHtml.includes('id="natAngle"') && !braidHtml.includes('id="rebound"'), '脱模自然角/回弹系数不再展示在界面');
 // 克重 / 强度的圆丝-扁丝也统一成同一种形态（丝型在尺寸框内、扁丝 = 厚度 × 宽度）
 for (const id of ['wSizeLabel', 'wFlatX', 'sSizeLabel', 'sFlatX']) {
   ok(html.includes(`id="${id}"`), `克重/强度存在 #${id}（与编织同形态）`);
@@ -384,14 +385,14 @@ eq(document.getElementById('strThick').hiddenClass, false, '强度：扁丝显�
 eq(document.getElementById('strWidth').hiddenClass, false, '强度：扁丝显示宽度');
 eq(document.getElementById('sFlatX').hiddenClass, false, '强度：扁丝显示 × 号');
 
-// ---------- 10. 脱模后外径（PPI → 编织角 → 回弹到自然角） ----------
+// ---------- 10. 脱模后外径（PPI → 编织角 → 回弹；θₙ/λ 为代码常数，界面不展示） ----------
 section('10. 脱模后外径');
 const setO = (o) => { for (const [k, v] of Object.entries(o)) document.getElementById(k).value = String(v); };
 const offOf = (o) => {
-  setO(Object.assign({ spindles: 144, mandrel: 8, wire: 0.03, shares: 1, wireShape: 'round', ppi: 55, length: 10, craft: '1x2', natAngle: 54.7, rebound: 0.1 }, o));
+  setO(Object.assign({ spindles: 144, mandrel: 8, wire: 0.03, shares: 1, wireShape: 'round', ppi: 55, length: 10, craft: '1x2' }, o));
   ctx.braidSync('ppi'); ctx.braidCalc(); return parseFloat(txt('odOff'));
 };
-// 默认（D=8, d=0.03, 144锭 1x2, PPI55, θₙ=54.7, λ=0.2）手工核算
+// 常数：θₙ=54.7°、λ=0.1（见 index.html 的 BRAID_NAT_ANGLE / BRAID_REBOUND）
 const Dm0 = 8 + 0.03, P55 = 72 * 25.4 / 55;
 const sn0 = Math.sin(Math.atan(Math.PI * Dm0 / P55)), snN = Math.sin(54.7 * Math.PI / 180);
 const onMandrel = Dm0 + 0.03;
@@ -400,32 +401,18 @@ near(ctx.braidOffMandrel(8, 0.03, 55, 144, '1x2').od, expOff, 1e-12, `braidOffMa
 near(offOf({}), expOff, 0.002, `默认脱模外径 ${txt('odOff')} mm（手算 ${expOff.toFixed(3)}）`);
 eq(txt('odOffSub'), 'mm（+2.6%）', `脱模外径标注回弹比例 ${txt('odOffSub')}`);
 ok(parseFloat(txt('odOff')) > parseFloat(txt('od')), '低编织角（37°<自然角）→ 脱模后变粗');
-// λ=0：不回弹，等于在模外径
-const off0 = offOf({ rebound: 0 });
-eq(off0, parseFloat(txt('od')), 'λ=0 → 脱模外径 = 在模外径');
-eq(txt('odOffSub'), 'mm（= 在模）', 'λ=0 → 标注「= 在模」');
-// λ 越大回弹越多
-const offL1 = offOf({ rebound: 1 });
-ok(offL1 > offOf({}), `λ 越大越回弹（0.2 → ${offOf({})}，1 → ${offL1}）`);
-near(offL1, onMandrel * (1 + (snN - sn0) / snN), 0.002, `λ=1 → 完全放松到自然角 ${offL1} mm`);
 // PPI 越高（编织角越大）→ 脱模后越细
 const off10 = offOf({ ppi: 10 }), off55 = offOf({ ppi: 55 }), off200 = offOf({ ppi: 200 });
 ok(off10 > off55 && off55 > off200, `PPI↑ → 脱模外径↓（10: ${off10}，55: ${off55}，200: ${off200}）`);
 // 高编织角（θ0 > θn）时脱模后变细
 const offHigh = offOf({ ppi: 200 });
 ok(offHigh < parseFloat(txt('od')), `θ0>θn（PPI200）→ 脱模后变细（${offHigh} < ${txt('od')}）`);
-// 自然角越大 → 回弹越多；留空按 54.7°
-const offA80 = offOf({ natAngle: 80 }), offAempty = offOf({ natAngle: '' });
-ok(offA80 > offOf({}), `自然角 80° > 54.7° 的回弹（${offA80} > ${offOf({})}）`);
-near(offAempty, expOff, 0.002, '自然角留空按 54.7° 处理');
-// 回弹系数留空按 0
-setO({ rebound: '' }); ctx.braidCalc();
-eq(parseFloat(txt('odOff')), parseFloat(txt('od')), '回弹系数留空按 0（= 在模）');
 // 报告
-setO({ rebound: 0.1 }); ctx.braidCalc();
+offOf({});
 const pv = document.getElementById('preview').value;
 ok(pv.includes('5、脱模后外径：' + txt('odOff') + ' mm'), '报告含脱模后外径行');
-ok(pv.includes('回弹 +2.6%') && pv.includes('自然角 54.7°、λ 0.10'), '报告注明回弹比例与模型参数');
+ok(pv.includes('回弹 +2.6%'), '报告注明回弹比例');
+ok(!pv.includes('自然角') && !pv.includes('λ'), '报告不再展示自然角/回弹系数参数');
 // PPI 为空 → 脱模外径也置 -
 setO({ ppi: '' }); ctx.braidCalc();
 eq(txt('odOff'), '-', 'PPI 为空 → 脱模外径 -');
