@@ -209,12 +209,27 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div><label>锭数</label><input id="spindles" type="number" value="144" oninput="braidSync('ppi')"></div>
       <div><label>工艺结构</label><select id="craft" onchange="braidSync('ppi')"><option value="1x1">一压一</option><option value="1x2" selected>一压二</option><option value="2x2">二压二</option></select></div>
       <div><label>芯棒直径 D (mm)</label><input id="mandrel" type="number" step="0.001" value="8" oninput="braidSync('ppi')"></div>
-      <div><label>丝径 d (mm)</label><input id="wire" type="number" step="0.001" value="0.03" oninput="braidWireSync()"></div>
-      <div><label>丝宽 w (mm)</label><input id="bwidth" type="number" step="0.001" value="0.030" oninput="braidCalc()" title="单根纱线压扁后的宽度；圆丝≈丝径，复丝/扁丝按实测或丝径×1.5~2.5"></div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:4px">
+          <span id="wireLabel" style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">丝径 d (mm)</span>
+          <select id="wireShape" onchange="braidShapeChange()" style="width:auto;flex:0 0 auto;padding:3px 6px;font-size:12px;border-radius:8px" title="圆丝：输入单根直径（丝宽 = 直径 × 股数）；扁丝：输入厚度 × 宽度（丝宽 = 宽度 × 股数）">
+            <option value="round" selected>圆丝</option><option value="flat">扁丝</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input id="wire" type="number" step="0.001" value="0.03" style="flex:1;min-width:0" oninput="braidCalc()" title="圆丝：单根丝直径（丝宽 = 直径 × 股数）">
+          <span id="flatX" class="hidden" style="flex:0 0 auto;color:var(--text3);font-size:14px">×</span>
+          <input id="flatW" class="hidden" type="number" step="0.001" value="0.100" style="flex:1;min-width:0;padding-left:8px;padding-right:8px" oninput="braidCalc()" title="扁丝单条带宽度；丝宽 = 宽度 × 股数，外径按厚度算">
+        </div>
+      </div>
+      <div><label>股数 n（空=单股）</label><input id="shares" type="number" step="1" min="1" placeholder="1" value="" oninput="braidCalc()" title="留空 = 单股；多股按平铺算：丝宽 = 单条宽度 × 股数"></div>
+      <div><label>丝宽 w (mm)</label><input id="bwidth" type="number" readonly value="0.030" title="由「丝径 × 股数」自动计算，不可直接修改"></div>
       <div><label>目数 PPI</label><input id="ppi" type="text" inputmode="decimal" value="55" oninput="braidSync('ppi')" style="background:#FFF9EB"></div>
       <div><label>节距 Pitch (mm)</label><input id="pitchIn" type="text" inputmode="decimal" placeholder="" oninput="braidSync('pitch')" style="background:#F0FDF4"></div>
       <div><label>编织夹角 (°)</label><input id="angleIn" type="text" inputmode="decimal" placeholder="" oninput="braidSync('angle')" style="background:#F0F9FF"></div>
       <div><label>成品长度 (m)</label><input id="length" type="number" step="0.1" value="10"></div>
+      <div><label>脱模自然角 θₙ (°)</label><input id="natAngle" type="number" step="0.1" min="1" max="89" value="54.7" oninput="braidCalc()" title="编织网脱模后趋向放松到的编织角，一般 40~55°（54.7° 为中立项标准值）；有实测后可反算"></div>
+      <div><label>回弹系数 λ</label><input id="rebound" type="number" step="0.05" min="0" max="1" value="0.1" oninput="braidCalc()" title="0 = 脱模后不变（等于在模外径）；1 = 完全回弹到自然角对应的幅度；实际约 0.05~0.3，按实测标定。变化幅度不会超过 λ"></div>
     </div>
     <div class="row mt8">
       <button class="btn" onclick="braidCalc()">计算</button>
@@ -232,6 +247,7 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
       <div class="kpi"><div class="l">覆盖率</div><div class="v" id="cover">-</div><div class="l">无网孔=100%</div></div>
       <div class="kpi"><div class="l">当前孔径</div><div class="v" id="mesh">-</div><div class="l" id="meshSub">mm</div></div>
       <div class="kpi"><div class="l">输出外径</div><div class="v" id="od">-</div><div class="l">mm</div></div>
+      <div class="kpi"><div class="l">脱模后外径</div><div class="v" id="odOff">-</div><div class="l" id="odOffSub">mm</div></div>
     </div>
   </div>
   <textarea id="preview" style="display:none"></textarea>
@@ -534,12 +550,20 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
         <option value="304">304 不锈钢</option><option value="316">316L 不锈钢</option>
         <option value="Niti">镍钛合金</option><option value="W">钨丝</option><option value="Pt">铂金</option>
       </select></div>
-      <div><label>丝型</label><select id="wireType" onchange="weightToggleFields();weightCalc()">
-        <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
-      </select></div>
-      <div id="roundField"><label>圆丝直径 d (mm)</label><input id="diameter" type="number" step="0.001" value="0.05" oninput="weightCalc()"></div>
-      <div id="flatWidthField" class="hidden"><label>扁丝宽 b (mm)</label><input id="width" type="number" step="0.001" value="0.05" oninput="weightCalc()"></div>
-      <div id="flatThickField" class="hidden"><label>扁丝厚 h (mm)</label><input id="thickness" type="number" step="0.001" value="0.127" oninput="weightCalc()"></div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:4px">
+          <span id="wSizeLabel" style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">丝径 d (mm)</span>
+          <select id="wireType" onchange="weightToggleFields();weightCalc()" style="width:auto;flex:0 0 auto;padding:3px 6px;font-size:12px;border-radius:8px" title="圆丝：输入直径（截面积 = πd²/4）；扁丝：输入厚度 × 宽度（截面积 = 宽 × 厚）">
+            <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input id="diameter" type="number" step="0.001" value="0.05" style="flex:1;min-width:0" oninput="weightCalc()" title="圆丝：直径（截面积 = πd²/4）">
+          <input id="thickness" class="hidden" type="number" step="0.001" value="0.127" style="flex:1;min-width:0;padding-left:8px;padding-right:8px" oninput="weightCalc()" title="扁丝：厚度（截面积 = 宽 × 厚）">
+          <span id="wFlatX" class="hidden" style="flex:0 0 auto;color:var(--text3);font-size:14px">×</span>
+          <input id="width" class="hidden" type="number" step="0.001" value="0.05" style="flex:1;min-width:0;padding-left:8px;padding-right:8px" oninput="weightCalc()" title="扁丝：宽度（截面积 = 宽 × 厚）">
+        </div>
+      </div>
       <div><label>总重量 (g)</label><input id="metalWeight" type="number" step="0.1" value="1000" oninput="weightCalc()"></div>
       <div><label>分丝/合股数</label><input id="metalStrands" type="number" step="1" value="1" min="1" oninput="weightCalc()"></div>
     </div>
@@ -572,12 +596,20 @@ input[readonly]{background:#f5f5f5;color:var(--text2)}
     <div id="strengthSection" class="grid2 hidden">
       <div style="grid-column:1/-1;font-weight:600;font-size:14px;margin-bottom:2px">💪 强度换算</div>
       <div style="grid-column:1/-1" class="muted mb8" style="font-size:11px">输入材料截面积和抗拉强度 MPa，计算断裂力 N</div>
-      <div><label>丝型</label><select id="strType" onchange="strengthToggleFields();strengthCalc()">
-        <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
-      </select></div>
-      <div id="strRound"><label>圆丝直径 d (mm)</label><input id="strDia" type="number" step="0.001" value="0.05" oninput="strengthCalc()"></div>
-      <div id="strFlatW" class="hidden"><label>扁丝宽 b (mm)</label><input id="strWidth" type="number" step="0.001" value="0.05" oninput="strengthCalc()"></div>
-      <div id="strFlatH" class="hidden"><label>扁丝厚 h (mm)</label><input id="strThick" type="number" step="0.001" value="0.127" oninput="strengthCalc()"></div>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:4px">
+          <span id="sSizeLabel" style="font-size:12px;color:var(--text3);font-weight:500;white-space:nowrap">丝径 d (mm)</span>
+          <select id="strType" onchange="strengthToggleFields();strengthCalc()" style="width:auto;flex:0 0 auto;padding:3px 6px;font-size:12px;border-radius:8px" title="圆丝：输入直径（截面积 = πd²/4）；扁丝：输入厚度 × 宽度（截面积 = 宽 × 厚）">
+            <option value="圆丝">圆丝</option><option value="扁丝">扁丝</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <input id="strDia" type="number" step="0.001" value="0.05" style="flex:1;min-width:0" oninput="strengthCalc()" title="圆丝：直径（截面积 = πd²/4）">
+          <input id="strThick" class="hidden" type="number" step="0.001" value="0.127" style="flex:1;min-width:0;padding-left:8px;padding-right:8px" oninput="strengthCalc()" title="扁丝：厚度（截面积 = 宽 × 厚）">
+          <span id="sFlatX" class="hidden" style="flex:0 0 auto;color:var(--text3);font-size:14px">×</span>
+          <input id="strWidth" class="hidden" type="number" step="0.001" value="0.05" style="flex:1;min-width:0;padding-left:8px;padding-right:8px" oninput="strengthCalc()" title="扁丝：宽度（截面积 = 宽 × 厚）">
+        </div>
+      </div>
       <div><label>抗拉强度 (MPa)</label><input id="strMPa" type="number" step="1" value="500" oninput="strengthCalc()"></div>
     </div>
   </div>
@@ -828,23 +860,58 @@ function braidCoverage(D,w,ppi,sp,craft){
 }
 // 输出外径：芯棒 D + 2×丝径 d（单侧一层丝厚）
 function braidOuterDia(D,d){return (D>0?D:0)+2*(d>0?d:0)}
-// 丝宽跟随丝径：仅在用户未手动改过丝宽时自动同步（圆丝近似）
-let braidAutoWidth='';
-function braidWireSync(){
-  const d=bv('wire'),el=document.getElementById('bwidth'),cur=parseFloat(el.value);
-  const isAuto=braidAutoWidth===''||!isFinite(cur)||Math.abs(cur-parseFloat(braidAutoWidth))<1e-9;
-  if(d>0&&(el.value===''||isAuto)){braidAutoWidth=d.toFixed(3);el.value=braidAutoWidth}
+// 单条纱线的铺展宽度：圆丝 = 直径，扁丝 = 带宽
+function braidStrandWidth(){
+  return document.getElementById('wireShape').value==='flat'?bv('flatW'):bv('wire');
+}
+// 丝宽 = 单条宽度 × 股数（合股平铺，圆丝/扁丝同式；留空=1 股）
+function braidWidth(per,n){
+  if(!(per>0))return 0;
+  return per*(n>0?n:1);
+}
+// 计算丝宽并回填只读输入框
+function braidWidthAuto(){
+  const w=braidWidth(braidStrandWidth(),bv('shares'));
+  document.getElementById('bwidth').value=w>0?w.toFixed(3):'';
+  return w;
+}
+// 切换圆丝/扁丝：扁丝时同一格里变成「厚度 × 宽度」，丝径框改称「厚度 t」
+function braidShapeChange(){
+  const flat=document.getElementById('wireShape').value==='flat';
+  document.getElementById('flatX').classList.toggle('hidden',!flat);
+  document.getElementById('flatW').classList.toggle('hidden',!flat);
+  const lb=document.getElementById('wireLabel'),wi=document.getElementById('wire');
+  lb.textContent=flat?'厚度 t×宽 W (mm)':'丝径 d (mm)';
+  wi.title=flat?'扁丝：单条带厚度（外径 = 芯棒 D + 2×厚度）':'圆丝：单根丝直径（丝宽 = 直径 × 股数）';
   braidCalc();
+}
+// 脱模后外径：编织角 θ 由 PPI 决定，脱模后朝「自然角 θₙ」放松
+//   Dm = 芯棒 D + 丝厚（编织层中径），P = (锭数/div)×25.4/PPI，tanθ = π·Dm/P
+//   Δ  = (sinθₙ − sinθ) / sinθₙ    （0 = 正好在自然角；>0 = 低角，脱模会回弹变粗；<0 = 高角，回弹变细）
+//   脱模外径 = 在模外径 × (1 + λ·Δ)   λ = 回弹系数（0~1，按实测标定；变化幅度不超过 λ）
+//   注意：这是一阶估算，低编织角时线性外推不可靠，用 Δ 归一化避免放大
+function braidOffMandrel(D,d,ppi,sp,craft){
+  const t=d>0?d:0,Dm=(D>0?D:0)+t;
+  const P=(sp/getPitchDivisor(craft))*(25.4/ppi);
+  if(!(Dm>0)||!(P>0))return null;
+  const th=Math.atan(Math.PI*Dm/P),sn=Math.sin(th);
+  const ang=Math.min(89,Math.max(1,bv('natAngle')||54.7));
+  const snN=Math.sin(ang*Math.PI/180);
+  if(!(snN>0))return null;
+  const lam=Math.min(1,Math.max(0,bv('rebound')));
+  const on=Dm+t,delta=(snN-sn)/snN;
+  return {od:on*(1+lam*delta),onMandrel:on,delta:delta*100,angle:th*180/Math.PI,lam:lam,nat:ang,thetaNat:ang};
 }
 function braidCalc(){
   const sp=bv('spindles'),D=bv('mandrel'),ppi=bv('ppi'),len=bv('length'),craft=document.getElementById('craft').value;
-  if(!ppi||ppi<=0){['ratio','angle','pitchOut','theory','single','total','cover','mesh','od'].forEach(k=>bset(k,'-'));return}
+  const w=braidWidthAuto();
+  if(!ppi||ppi<=0){['ratio','angle','pitchOut','theory','single','total','cover','mesh','od','odOff'].forEach(k=>bset(k,'-'));return}
   const sA=singleAngle(D,ppi,sp,craft),bA=braidAngle(D,ppi,sp,craft),th=theoryRatio(D,ppi,sp,craft);
   const div=getPitchDivisor(craft),pitch=(sp/div)*(25.4/ppi),ratio=th;
   const sM=ratio*len,tM=sM*sp;
   bset('ratio',ratio.toFixed(3));bset('angle',bA.toFixed(2)+'°');bset('pitchOut',pitch.toFixed(2));
   bset('theory',(25.4/ppi).toFixed(3)+' mm');bset('single',sM.toFixed(2)+' m');bset('total',tM.toFixed(2)+' m');
-  const cv=braidCoverage(D,bv('bwidth'),ppi,sp,craft);
+  const cv=braidCoverage(D,w,ppi,sp,craft);
   const covEl=document.getElementById('cover'),meshEl=document.getElementById('mesh');
   if(cv){
     bset('cover',(cv.total*100).toFixed(1)+'%');
@@ -857,25 +924,42 @@ function braidCalc(){
   }
   const od=braidOuterDia(D,bv('wire'));
   bset('od',od>0?od.toFixed(3):'-');
+  const off=braidOffMandrel(D,bv('wire'),ppi,sp,craft);
+  if(off&&off.od>0){
+    bset('odOff',off.od.toFixed(3));
+    const pc=off.onMandrel>0?(off.od/off.onMandrel-1)*100:0;
+    bset('odOffSub','mm'+(Math.abs(pc)<0.05?'（= 在模）':'（'+(pc>0?'+':'')+pc.toFixed(1)+'%）'));
+    document.getElementById('odOff').style.color=Math.abs(pc)>=5?'var(--orange)':'var(--blue)';
+  }else{bset('odOff','-');bset('odOffSub','mm')}
   braidBuildPreview();
 }
 // 孔径长度显示：<1mm 三位小数，1~10mm 两位，≥10mm 一位
 function braidFmtLen(v){return v>=10?v.toFixed(1):(v>=1?v.toFixed(2):v.toFixed(3))}
 function braidBuildPreview(){
   const sp=bv('spindles'),D=bv('mandrel'),d=bv('wire'),w=bv('bwidth'),ppi=bv('ppi'),len=bv('length');
+  const flat=document.getElementById('wireShape').value==='flat';
+  const n=bv('shares')>0?bv('shares'):1;
+  const spec=flat?`扁丝 厚 ${d.toFixed(3)} × 宽 ${bv('flatW').toFixed(3)} mm`:`圆丝 直径 ${d.toFixed(3)} mm`;
   document.getElementById('preview').value=`【编织工艺参数参考】
 工艺：${craftText(document.getElementById('craft').value)}
-锭数：${sp} 锭 | 芯棒直径：${D.toFixed(3)} mm | 丝径：${d.toFixed(3)} mm | 丝宽：${w>0?w.toFixed(3):'-'} mm
+锭数：${sp} 锭 | 芯棒直径：${D.toFixed(3)} mm | ${spec}，${n} 股 → 丝宽 ${w>0?w.toFixed(3):'-'} mm（外径按丝厚 ${d.toFixed(3)} mm 计）
 目数：${ppi} PPI | 节距：${document.getElementById('pitchOut').textContent} mm | 成品长度：${len} m
 
 计算结果：
 1、用丝比：${document.getElementById('ratio').textContent}
 2、编织夹角：${document.getElementById('angle').textContent}
 3、覆盖率：${document.getElementById('cover').textContent}（100% = 网孔闭合看不见芯棒）
-4、输出外径：${document.getElementById('od').textContent} mm
-5、单目长度：${document.getElementById('theory').textContent}
-6、单股用丝：${document.getElementById('single').textContent}
-7、机台理论总用丝：${document.getElementById('total').textContent}`;
+4、在模外径：${document.getElementById('od').textContent} mm
+5、脱模后外径：${document.getElementById('odOff').textContent} mm${offTxt()}
+6、单目长度：${document.getElementById('theory').textContent}
+7、单股用丝：${document.getElementById('single').textContent}
+8、机台理论总用丝：${document.getElementById('total').textContent}`;
+}
+// 脱模外径的补充说明（回弹比例 + 模型参数）
+function offTxt(){
+  const chk=document.getElementById('odOffSub').textContent;
+  const m=/（([+-]?[\d.]+)%）/.exec(chk);
+  return m?`（在模 ${document.getElementById('od').textContent} mm，回弹 ${m[1]}%；自然角 ${bv('natAngle')||54.7}°、λ ${(Math.min(1,Math.max(0,bv('rebound')))).toFixed(2)}）`:'';
 }
 async function braidCopy(){
   braidCalc();
@@ -1254,19 +1338,24 @@ function weightSwitchTab(tab){
   document.getElementById('strengthKpi').style.display=isStr?'':'none';
   if(isStr)strengthCalc();else weightCalc();
   if(tab==='metal')weightToggleFields();
+  if(tab==='strength')strengthToggleFields();
 }
 function weightToggleFields(){
   if(weightTab!=='metal')return;
-  const t=document.getElementById('wireType').value;
-  document.getElementById('roundField').classList.toggle('hidden',t!=='圆丝');
-  document.getElementById('flatWidthField').classList.toggle('hidden',t!=='扁丝');
-  document.getElementById('flatThickField').classList.toggle('hidden',t!=='扁丝');
+  const flat=document.getElementById('wireType').value==='扁丝';
+  document.getElementById('diameter').classList.toggle('hidden',flat);
+  document.getElementById('thickness').classList.toggle('hidden',!flat);
+  document.getElementById('width').classList.toggle('hidden',!flat);
+  document.getElementById('wFlatX').classList.toggle('hidden',!flat);
+  document.getElementById('wSizeLabel').textContent=flat?'厚度 × 宽度 (mm)':'丝径 d (mm)';
 }
 function strengthToggleFields(){
-  const t=document.getElementById('strType').value;
-  document.getElementById('strRound').classList.toggle('hidden',t!=='圆丝');
-  document.getElementById('strFlatW').classList.toggle('hidden',t!=='扁丝');
-  document.getElementById('strFlatH').classList.toggle('hidden',t!=='扁丝');
+  const flat=document.getElementById('strType').value==='扁丝';
+  document.getElementById('strDia').classList.toggle('hidden',flat);
+  document.getElementById('strThick').classList.toggle('hidden',!flat);
+  document.getElementById('strWidth').classList.toggle('hidden',!flat);
+  document.getElementById('sFlatX').classList.toggle('hidden',!flat);
+  document.getElementById('sSizeLabel').textContent=flat?'厚度 × 宽度 (mm)':'丝径 d (mm)';
 }
 function strengthCalc(){
   const t=document.getElementById('strType').value,mpa=parseFloat(document.getElementById('strMPa').value||0);
@@ -2531,10 +2620,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   initCoil3();
   coilLoadSettings();
   braidSync('ppi');
-  braidCalc();
+  braidShapeChange();
   singleSetMode('W');
   singleRunCalc();
   weightToggleFields();
+  strengthToggleFields();
   weightCalc();
 });
 </script>

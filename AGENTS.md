@@ -55,6 +55,24 @@ npx wrangler deploy             # 2. 部署到 Cloudflare Workers
 
 ## 4. 最近改动记录
 
+### 2026-10-27：编织页丝宽改为「丝径 / 扁丝 厚度×宽度 × 股数」自动推算（已部署）
+
+- `丝型`（`#wireShape`：圆丝/扁丝）**收在「丝径」框里**（标签行右侧小下拉，`onchange=braidShapeChange()`）：
+  - 圆丝：`#wire` = 单根直径，`丝宽 w = #wire × 股数`
+  - 扁丝：同一格变成 **厚度 `#wire` × 宽度 `#flatW`**（中间 `#flatX` 显示 ×），`丝宽 w = #flatW × 股数`，
+    标签改「厚度 t×宽 W (mm)」；不再有单独的宽度格子（`#flatWidthWrap` 已删除）
+- `股数 n`（`#shares`）**默认留空 = 单股**；丝宽（`#bwidth`）为 **readonly 自动值**，由
+  `braidStrandWidth()` + `braidWidth()` + `braidWidthAuto()` 回填；旧的 `braidWireSync()`/`braidAutoWidth` 已删除
+- **外径按丝厚算**：`OD = D + 2 × #wire`（圆丝=直径、扁丝=厚度），与股数/丝宽无关
+- `node tests/braid.test.mjs` → **187 项断言全绿**
+- **克重→金属丝 / 强度换算 的圆丝/扁丝也统一成同一形态**：丝型下拉在尺寸框内，圆丝=直径，扁丝=同格「厚度 × 宽度」；
+  旧字段 `roundField/flatWidthField/flatThickField`、`strRound/strFlatW/strFlatH` 已删除，新增 `#wSizeLabel/#wFlatX`、`#sSizeLabel/#sFlatX`；
+  截面积口径不变（圆丝 πd²/4、扁丝 宽×厚）
+- **脱模后外径**（结果卡第 10 格 `#odOff`/`#odOffSub`，输入 `#natAngle` 默认 54.7°、`#rebound` 默认 0.1）：
+  `braidOffMandrel()`：`Dm=D+丝厚`、`P=(锭数/div)×25.4/PPI`、`tanθ=πDm/P`、`Δ=(sinθₙ−sinθ)/sinθₙ`、
+  `脱模外径 = 在模外径 ×(1+λΔ)`；变化幅度上限为 λ，`λ=0` 时等于在模外径。一阶估算，待实测标定 λ
+- 本地渲染验证（编织圆丝/扁丝、克重圆丝/扁丝、强度扁丝、脱模外径卡片）；已部署（Version ID `4f0b041a-ff93-4b10-9180-6f6835934d35`）
+
 ### 2026-09-20：编织页新增「覆盖率」与「输出外径」（已本地测试，未部署）
 
 - 输入新增 `丝宽 w (mm)`（`#bwidth`，默认随丝径自动同步，手动改过则不再覆盖）
